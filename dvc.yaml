@@ -6,3 +6,7 @@ stages:
       --image_width ${image_features.image_width}
       --image_height ${image_features.image_height}
       --batch_size ${image_features.batch_size}
+    deps:
+    - ${image_features.image_directory}
+    outs:
+    - ${image_features.output_file}
