@@ -1,12 +1,13 @@
 stages:
   feature_extraction:
     cmd: ${python_interpreter_cmd} delius/feature_extraction.py
-      --image_directory ${image_features.image_directory}
-      --output_file ${image_features.output_file}
+      --input_compressed_image_dir ${image_features.input_compressed_image_dir}
+      --output_uncompressed_image_dir ${image_features.output_uncompressed_image_dir}
+      --output_embedding_file ${image_features.output_embedding_file}
       --image_width ${image_features.image_width}
       --image_height ${image_features.image_height}
       --batch_size ${image_features.batch_size}
     deps:
-    - ${image_features.image_directory}
+    - ${image_features.input_compressed_image_dir}
     outs:
-    - ${image_features.output_file}
+    - ${image_features.output_embedding_file}

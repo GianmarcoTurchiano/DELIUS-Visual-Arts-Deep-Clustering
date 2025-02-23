@@ -1,9 +1,10 @@
 python_interpreter_cmd: python
 
 image_features:
-  image_directory: /mnt/c/Users/Utente/Desktop/dl_case_study/images/images/imagesf2
+  input_compressed_image_dir: ./data/raw/images.tar.gz
+  output_uncompressed_image_dir: ./data/interim/images/
   image_width: 224
   image_height: 224
   batch_size: 256
-  output_file: ./data/processed/embeddings.pth
+  output_embedding_file: ./data/processed/embeddings.pth
 

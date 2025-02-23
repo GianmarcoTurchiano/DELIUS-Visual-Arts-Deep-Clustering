@@ -2,6 +2,7 @@ import argparse
 from pathlib import Path
 from itertools import chain
 from PIL import Image
+import tarfile
 
 import torch
 from torch import nn
@@ -122,23 +123,30 @@ def save_densenet_embeddings(
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--image_directory', type=str)
-    parser.add_argument('--output_file', type=str)
+    parser.add_argument('--input_compressed_image_dir', type=str)
+    parser.add_argument('--output_uncompressed_image_dir', type=str)
+    parser.add_argument('--output_embedding_file', type=str)
     parser.add_argument('--image_width', type=int)
     parser.add_argument('--image_height', type=int)
     parser.add_argument('--batch_size', type=int)
 
     args = parser.parse_args()
 
-    image_directory = args.image_directory
+    input_compressed_image_dir = args.input_compressed_image_dir
+    output_uncompressed_image_dir = args.output_uncompressed_image_dir
     batch_size = args.batch_size
     image_width = args.image_width
     image_height = args.image_height
-    output_file = args.output_file
+    output_embedding_file = args.output_embedding_file
+
+    tqdm.write(f"Uncompressing files from '{input_compressed_image_dir}' to '{output_uncompressed_image_dir}'...")
+
+    with tarfile.open(input_compressed_image_dir, "r:gz") as tar:
+        tar.extractall(output_uncompressed_image_dir)
 
     embeddings = save_densenet_embeddings(
-        image_directory,
-        output_file,
+        output_uncompressed_image_dir,
+        output_embedding_file,
         image_width,
         image_height,
         batch_size
