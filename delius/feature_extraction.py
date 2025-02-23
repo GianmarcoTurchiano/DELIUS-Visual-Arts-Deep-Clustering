@@ -4,10 +4,24 @@ from itertools import chain
 from PIL import Image
 
 import torch
+from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 from torchvision.models import densenet121, DenseNet121_Weights
 from tqdm import tqdm
+
+
+class FeatureExtractor(nn.Module):
+    def __init__(self):
+        super(FeatureExtractor, self).__init__()
+        densenet = densenet121(weights=DenseNet121_Weights.DEFAULT)
+        self.features = nn.Sequential(*list(densenet.children())[:-1])
+        self.pooling = nn.AdaptiveAvgPool2d(1)
+    
+    def forward(self, x):
+        x = self.features(x)
+        x = self.pooling(x)
+        return x.view(x.size(0), -1)
 
 
 class ArtDataset(Dataset):
@@ -70,19 +84,20 @@ def get_densenet_embeddings(
 
     tqdm.write(f'Loading model...')
 
-    model = densenet121(weights=DenseNet121_Weights.DEFAULT)
+    model = FeatureExtractor()
     model.eval()
 
-    paths = []
+    names = []
     embeddings = []
 
     with torch.no_grad():
-        for path, image in tqdm(loader, desc='Extracting image features...'):
-            paths.extend(path)
-            embedding = model(image)
+        for paths, images in tqdm(loader, desc='Extracting image features'):
+            name = list(map(lambda path: path.split('/')[-1], paths))
+            names.extend(name)
+            embedding = model(images)
             embeddings.extend(embedding)
 
-    return dict(zip(paths, embeddings))
+    return dict(zip(names, embeddings))
 
 
 def save_densenet_embeddings(
@@ -99,7 +114,7 @@ def save_densenet_embeddings(
         batch_size
     )
 
-    tqdm.write(f"Saving embedding to file '{output_file}'...")
+    tqdm.write(f"Saving embeddings to file '{output_file}'...")
 
     torch.save(embeddings, output_file)
 
