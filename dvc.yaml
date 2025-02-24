@@ -40,3 +40,23 @@ stages:
     - ${encoder.pretrained_path}
     outs:
     - ${clustering.centroids_path}
+  clustering:
+    cmd: ${python_interpreter_cmd} -m delius.clustering
+      --batch ${training_hyperparameters.batch_size}
+      --encoder_hidden_dimensions ${encoder.hidden_dimensions}
+      --input_embeddings_dimensions ${image_features.dimensions}
+      --input_embeddings_file ${image_features.output_embedding_file}
+      --input_pretrained_encoder_file ${encoder.pretrained_path}
+      --input_centroids_file ${clustering.centroids_path}
+      --learning_rate ${training_hyperparameters.learning_rate}
+      --steps ${clustering.steps}
+      --update_interval ${clustering.update_interval}
+      --delta_tol ${clustering.delta_tol}
+      --output_dec_file ${clustering.dec_path}
+    deps:
+    - delius/clustering.py
+    - ${image_features.output_embedding_file}
+    - ${encoder.pretrained_path}
+    - ${clustering.centroids_path}
+    outs:
+    - ${clustering.dec_path}
