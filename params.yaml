@@ -1,19 +1,20 @@
 python_interpreter_cmd: python
 
-image_features:
-  input_compressed_image_dir: ./data/raw/images.tar.gz
-  output_uncompressed_image_dir: ./data/interim/images/
+images:
+  compressed_image_dir: ./data/raw/images.tar.gz
+  uncompressed_image_dir: ./data/interim/images/
   image_width: 224
   image_height: 224
-  batch_size: 256
-  output_embedding_file: ./data/processed/embeddings.pth
+
+image_features:
+  embeddings_file: ./data/processed/embeddings.pth
   dimensions: 1024
 
 encoder:
   hidden_dimensions: 500 500 2000 10
   pretrained_path: ./models/pretrained/model.pth
 
-training_hyperparameters:
+hyperparameters:
   batch_size: 256
   learning_rate: 1e-3
   num_epochs: 200

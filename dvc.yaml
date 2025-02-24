@@ -1,64 +1,65 @@
 stages:
-  feature_extraction:
-    cmd: ${python_interpreter_cmd} delius/feature_extraction.py
-      --input_compressed_image_dir ${image_features.input_compressed_image_dir}
-      --output_uncompressed_image_dir ${image_features.output_uncompressed_image_dir}
-      --output_embedding_file ${image_features.output_embedding_file}
-      --image_width ${image_features.image_width}
-      --image_height ${image_features.image_height}
-      --batch_size ${image_features.batch_size}
+  features_extraction:
+    cmd: ${python_interpreter_cmd} -m delius.features_extraction
+      --input_compressed_image_dir ${images.compressed_image_dir}
+      --output_uncompressed_image_dir ${images.uncompressed_image_dir}
+      --output_embedding_file ${image_features.embeddings_file}
+      --image_width ${images.image_width}
+      --image_height ${images.image_height}
+      --batch_size ${hyperparameters.batch_size}
     deps:
-    - ${image_features.input_compressed_image_dir}
+    - delius/features_extraction.py
+    - ${image_features.compressed_image_dir}
     outs:
-    - ${image_features.output_embedding_file}
+    - ${image_features.embeddings_file}
   autoencoder_pretraining:
     cmd: ${python_interpreter_cmd} -m delius.autoencoder_pretraining
-      --learning_rate ${training_hyperparameters.learning_rate}
-      --epochs ${training_hyperparameters.num_epochs}
-      --batch ${training_hyperparameters.batch_size}
+      --learning_rate ${  learning_rate}
+      --epochs ${hyperparameters.num_epochs}
+      --batch ${hyperparameters.batch_size}
       --encoder_hidden_dimensions ${encoder.hidden_dimensions}
       --input_embeddings_dimensions ${image_features.dimensions}
-      --input_embeddings_file ${image_features.output_embedding_file}
+      --input_embeddings_file ${image_features.embeddings_file}
       --output_encoder_file ${encoder.pretrained_path}
     deps:
     - delius/autoencoder_pretraining.py
-    - ${image_features.output_embedding_file}
+    - ${image_features.embeddings_file}
     outs:
     - ${encoder.pretrained_path}
   clusters_initialization:
     cmd: ${python_interpreter_cmd} -m delius.clusters_initialization
-      --batch ${training_hyperparameters.batch_size}
+      --batch ${hyperparameters.batch_size}
       --encoder_hidden_dimensions ${encoder.hidden_dimensions}
       --input_embeddings_dimensions ${image_features.dimensions}
-      --input_embeddings_file ${image_features.output_embedding_file}
+      --input_embeddings_file ${image_features.embeddings_file}
       --input_pretrained_encoder_file ${encoder.pretrained_path}
       --output_centroids_file ${clustering.centroids_path}
       --output_assignments_file_path ${clustering.assignments_path}
       --n_clusters ${clustering.n_clusters}
     deps:
     - delius/clusters_initialization.py
-    - ${image_features.output_embedding_file}
+    - ${image_features.embeddings_file}
     - ${encoder.pretrained_path}
     outs:
     - ${clustering.centroids_path}
     - ${clustering.assignments_path}
   clustering:
     cmd: ${python_interpreter_cmd} -m delius.clustering
-      --batch ${training_hyperparameters.batch_size}
+      --batch ${hyperparameters.batch_size}
       --encoder_hidden_dimensions ${encoder.hidden_dimensions}
       --input_embeddings_dimensions ${image_features.dimensions}
-      --input_embeddings_file ${image_features.output_embedding_file}
+      --input_embeddings_file ${image_features.embeddings_file}
       --input_pretrained_encoder_file ${encoder.pretrained_path}
       --input_centroids_file ${clustering.centroids_path}
       --input_assignments_file_path ${clustering.assignments_path}
-      --learning_rate ${training_hyperparameters.learning_rate}
+      --learning_rate ${hyperparameters.learning_rate}
       --steps ${clustering.steps}
       --update_interval ${clustering.update_interval}
       --delta_tol ${clustering.delta_tol}
       --output_dec_file ${clustering.dec_path}
     deps:
     - delius/clustering.py
-    - ${image_features.output_embedding_file}
+    - ${image_features.embeddings_file}
     - ${encoder.pretrained_path}
     - ${clustering.centroids_path}
     - ${clustering.assignments_path}
@@ -66,15 +67,15 @@ stages:
     - ${clustering.dec_path}
   clusters_visualization:
     cmd: ${python_interpreter_cmd} -m delius.clusters_visualization
-      --batch ${training_hyperparameters.batch_size}
-      --input_embeddings_file ${image_features.output_embedding_file}
+      --batch ${hyperparameters.batch_size}
+      --input_embeddings_file ${image_features.embeddings_file}
       --input_dec_file ${clustering.dec_path}
       --output_tsne_pic_file ${clustering.tsne_pic_file}
       --output_umap_pic_file ${clustering.umap_pic_file}
     deps:
     - delius/clusters_visualization.py
     - ${clustering.dec_path}
-    - ${image_features.output_embedding_file}
+    - ${image_features.embeddings_file}
     outs:
     - ${clustering.tsne_pic_file}
     - ${clustering.umap_pic_file}

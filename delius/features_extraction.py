@@ -85,7 +85,9 @@ def get_densenet_embeddings(
 
     tqdm.write(f'Loading model...')
 
-    model = FeatureExtractor()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    model = FeatureExtractor().to(device)
     model.eval()
 
     names = []
@@ -95,6 +97,8 @@ def get_densenet_embeddings(
         for paths, images in tqdm(loader, desc='Extracting image features'):
             name = list(map(lambda path: path.split('/')[-1], paths))
             names.extend(name)
+            
+            images = images.to(device)
             embedding = model(images)
             embeddings.extend(embedding)
 
