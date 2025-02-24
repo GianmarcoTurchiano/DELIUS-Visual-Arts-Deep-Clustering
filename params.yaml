@@ -16,11 +16,11 @@ encoder:
 
 hyperparameters:
   batch_size: 256
-  learning_rate: 1e-3
+  learning_rate: 1e-4
   num_epochs: 200
 
 clustering:
-  n_clusters: 5
+  n_clusters: 10
   centroids_path: ./models/kmeans/centroids.pth
   assignments_path: ./models/kmeans/assignments.pth
   dec_path: ./models/dec/model.pth
