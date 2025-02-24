@@ -27,10 +27,10 @@ stages:
       size: 491909125
     - path: delius/autoencoder_pretraining.py
       hash: md5
-      md5: 7ee9d8d613969f4e6d4d693f59d32605
-      size: 2573
+      md5: 9097169902b2fad7ad3e247f368a365a
+      size: 2572
     outs:
     - path: ./models/pretrained/model.pth
       hash: md5
-      md5: 56db0fa29fe6f5737ee29d0e8b7d2223
+      md5: d4f140524346a455f91532be69bb961c
       size: 7143016
