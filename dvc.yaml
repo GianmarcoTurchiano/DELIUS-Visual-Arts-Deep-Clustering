@@ -64,3 +64,17 @@ stages:
     - ${clustering.assignments_path}
     outs:
     - ${clustering.dec_path}
+  clusters_visualization:
+    cmd: ${python_interpreter_cmd} -m delius.clusters_visualization
+      --batch ${training_hyperparameters.batch_size}
+      --input_embeddings_file ${image_features.output_embedding_file}
+      --input_dec_file ${clustering.dec_path}
+      --output_tsne_pic_file ${clustering.tsne_pic_file}
+      --output_umap_pic_file ${clustering.umap_pic_file}
+    deps:
+    - delius/clusters_visualization.py
+    - ${clustering.dec_path}
+    - ${image_features.output_embedding_file}
+    outs:
+    - ${clustering.tsne_pic_file}
+    - ${clustering.umap_pic_file}
