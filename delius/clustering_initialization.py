@@ -68,8 +68,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--input_embeddings_file', type=str)
-    parser.add_argument('--input_pretrained_encoder', type=str)
-    parser.add_argument('--output_centroids_file_path', type=str)
+    parser.add_argument('--input_pretrained_encoder_file', type=str)
+    parser.add_argument('--output_centroids_file', type=str)
     parser.add_argument('--input_embeddings_dimensions', type=int)
     parser.add_argument('--encoder_hidden_dimensions', type=int, nargs='+')
     parser.add_argument('--batch', type=int)
@@ -80,9 +80,9 @@ if __name__ == '__main__':
     init_clusters(
         args.input_embeddings_file,
         args.input_pretrained_encoder_file,
-        args.output_centroids_file_path,
+        args.output_centroids_file,
         args.n_clusters,
         args.input_embeddings_dimensions,
         args.encoder_hidden_dimensions,
-        args.batch_size
+        args.batch
     )

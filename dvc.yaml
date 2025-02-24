@@ -31,8 +31,8 @@ stages:
       --encoder_hidden_dimensions ${encoder.hidden_dimensions}
       --input_embeddings_dimensions ${image_features.dimensions}
       --input_embeddings_file ${image_features.output_embedding_file}
-      --input_pretrained_encoder ${encoder.pretrained_path}
-      --output_centroids_file_path ${clustering.centroids_path}
+      --input_pretrained_encoder_file ${encoder.pretrained_path}
+      --output_centroids_file ${clustering.centroids_path}
       --n_clusters ${clustering.n_clusters}
     deps:
     - delius/clustering_initialization.py
