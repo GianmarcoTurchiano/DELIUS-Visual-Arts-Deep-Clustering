@@ -61,7 +61,7 @@ def pretrain_autoencoder(
         tqdm.write(f"Epoch {epoch+1}/{epochs}, Loss: {total_loss/len(loader.dataset):.4f}")
 
     tqdm.write(f"Saving encoder to '{output_encoder_file_path}'...")
-    torch.save(model.encoder, output_encoder_file_path)
+    torch.save(model.encoder.state_dict(), output_encoder_file_path)
 
 
 if __name__ == '__main__':

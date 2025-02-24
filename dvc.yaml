@@ -21,6 +21,7 @@ stages:
       --input_embeddings_file ${image_features.output_embedding_file}
       --output_encoder_file ${encoder.pretrained_path}
     deps:
+    - delius/autoencoder_pretraining.py
     - ${image_features.output_embedding_file}
     outs:
     - ${encoder.pretrained_path}
