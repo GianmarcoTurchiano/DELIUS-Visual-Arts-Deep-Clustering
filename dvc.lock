@@ -15,3 +15,18 @@ stages:
       hash: md5
       md5: fdfb826267693e58d5ee6de848ea1e1a
       size: 491909125
+  autoencoder_pretraining:
+    cmd: python -m delius.autoencoder_pretraining --learning_rate 0.001 --epochs 200
+      --batch 256 --encoder_hidden_dimensions 500 500 2000 10 --input_embeddings_dimensions
+      1024 --input_embeddings_file ./data/processed/embeddings.pth --output_encoder_file
+      ./models/pretrained/model.pth
+    deps:
+    - path: ./data/processed/embeddings.pth
+      hash: md5
+      md5: fdfb826267693e58d5ee6de848ea1e1a
+      size: 491909125
+    outs:
+    - path: ./models/pretrained/model.pth
+      hash: md5
+      md5: 42e7ea435621750b5977653972df78ac
+      size: 7144936
