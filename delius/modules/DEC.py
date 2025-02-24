@@ -6,13 +6,14 @@ class DEC(nn.Module):
     def __init__(
         self,
         encoder,
-        centroids,
+        n_clusters,
+        embeddings_dim,
         alpha=1.0
     ):
         super(DEC, self).__init__()
 
         self.encoder = encoder
-        self.centroids = nn.Parameter(centroids)
+        self.centroids = nn.Parameter(torch.zeros(n_clusters, embeddings_dim))
         self.alpha = alpha
 
     def forward(self, x):

@@ -57,6 +57,7 @@ stages:
       --update_interval ${clustering.update_interval}
       --delta_tol ${clustering.delta_tol}
       --output_dec_file ${clustering.dec_path}
+      --n_clusters ${clustering.n_clusters}
     deps:
     - delius/clustering.py
     - ${image_features.embeddings_file}

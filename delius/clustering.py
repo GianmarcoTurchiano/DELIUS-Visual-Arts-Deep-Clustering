@@ -24,7 +24,8 @@ def cluster(
     learning_rate=1e-3,
     steps=8000,
     update_interval=140,
-    delta_tol=0.001
+    delta_tol=0.001,
+    n_clusters=5
 ):
     tqdm.write(f"Loading features from '{input_embeddings_file_path}'...")
 
@@ -65,8 +66,11 @@ def cluster(
 
     model = DEC(
         encoder,
-        centroids
+        n_clusters,
+        encoder_hidden_dimensions[-1]
     ).to(device)
+
+    model.centroids = centroids
 
     optimizer = Adam(model.parameters(), lr=learning_rate)
     kl_loss = nn.KLDivLoss(reduction='batchmean')
@@ -149,6 +153,7 @@ if __name__ == '__main__':
     parser.add_argument('--learning_rate', type=float)
     parser.add_argument('--update_interval', type=int)
     parser.add_argument('--delta_tol', type=float)
+    parser.add_argument('--n_clusters', type=int)
 
     args = parser.parse_args()
 
@@ -164,5 +169,6 @@ if __name__ == '__main__':
         args.learning_rate,
         args.steps,
         args.update_interval,
-        args.delta_tol
+        args.delta_tol,
+        args.n_clusters
     )

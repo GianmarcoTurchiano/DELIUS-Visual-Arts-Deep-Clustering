@@ -44,7 +44,8 @@ def display_clusters(
 
     model = DEC(
         encoder,
-        torch.zeros(n_clusters, encoder_hidden_dimensions[-1])
+        n_clusters,
+        encoder_hidden_dimensions[-1]
     ).to(device)
 
     model.load_state_dict(weights)
