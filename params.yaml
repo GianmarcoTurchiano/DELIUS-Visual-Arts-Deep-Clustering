@@ -27,5 +27,4 @@ clustering:
   steps: 8000
   update_interval: 140
   delta_tol: 0.001
-  umap_pic_file: ./models/clustering_pics/umap.png
   tsne_pic_file: ./models/clustering_pics/tsne.png

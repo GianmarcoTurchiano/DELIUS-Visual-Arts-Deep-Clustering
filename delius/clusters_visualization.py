@@ -15,7 +15,6 @@ def display_clusters(
     input_embeddings_file_path,
     input_dec_file_path,
     output_tsne_pic_file_path,
-    output_umap_pic_file_path,
     batch_size=256,
     input_embeddings_dimensions=1024,
     encoder_hidden_dimensions=[500, 500, 2000, 10],
@@ -85,8 +84,10 @@ if __name__ == '__main__':
     parser.add_argument('--input_dec_file', type=str)
     parser.add_argument('--input_embeddings_file', type=str)
     parser.add_argument('--output_tsne_pic_file', type=str)
-    parser.add_argument('--output_umap_pic_file', type=str)
     parser.add_argument('--batch', type=int)
+    parser.add_argument('--input_embeddings_dimensions', type=int)
+    parser.add_argument('--encoder_hidden_dimensions', type=int, nargs='+')
+    parser.add_argument('--n_clusters', type=int)
 
     args = parser.parse_args()
 
@@ -94,6 +95,8 @@ if __name__ == '__main__':
         args.input_embeddings_file,
         args.input_dec_file,
         args.output_tsne_pic_file,
-        args.output_umap_pic_file,
-        args.batch
+        args.batch,
+        args.input_embeddings_dimensions,
+        args.encoder_hidden_dimensions,
+        args.n_clusters
     )
