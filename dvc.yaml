@@ -25,3 +25,18 @@ stages:
     - ${image_features.output_embedding_file}
     outs:
     - ${encoder.pretrained_path}
+  clustering_initialization:
+    cmd: ${python_interpreter_cmd} -m delius.clustering_initialization
+      --batch ${training_hyperparameters.batch_size}
+      --encoder_hidden_dimensions ${encoder.hidden_dimensions}
+      --input_embeddings_dimensions ${image_features.dimensions}
+      --input_embeddings_file ${image_features.output_embedding_file}
+      --input_pretrained_encoder ${encoder.pretrained_path}
+      --output_centroids_file_path ${clustering.centroids_path}
+      --n_clusters ${clustering.n_clusters}
+    deps:
+    - delius/clustering_initialization.py
+    - ${image_features.output_embedding_file}
+    - ${encoder.pretrained_path}
+    outs:
+    - ${clustering.centroids_path}

@@ -17,3 +17,7 @@ training_hyperparameters:
   batch_size: 256
   learning_rate: 1e-3
   num_epochs: 200
+
+clustering:
+  n_clusters: 5
+  centroids_path: ./models/kmeans/centroids.pth
