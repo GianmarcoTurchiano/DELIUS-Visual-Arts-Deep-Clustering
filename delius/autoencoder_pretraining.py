@@ -26,7 +26,7 @@ def pretrain_autoencoder(
     loader = DataLoader(
         dataset,
         batch_size=batch_size,
-        shuffle=False
+        shuffle=True
     )
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
