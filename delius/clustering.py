@@ -73,7 +73,13 @@ def cluster(
     
     y_pred_last = torch.clone(assignments).numpy()
 
-    for step in tqdm(range(steps), desc='Steps'):
+    step = 1
+
+    pbar = tqdm(total=steps)
+
+    converged = False
+
+    while True:
         for _, train_embeddings in train_loader:
             if step % update_interval == 0:
                 q_all = []
@@ -92,11 +98,12 @@ def cluster(
                 delta_label = np.sum(y_pred != y_pred_last).astype(np.float32) / y_pred.shape[0]
                 y_pred_last = y_pred.copy()
                 
-                tqdm.write(f"Epoch {step}, label change: {delta_label:.4f}")
+                tqdm.write(f"Step {step}/{steps}, label change: {delta_label:.4f}")
                 
                 if step > 0 and delta_label < delta_tol:
                     tqdm.write(f'delta_label {delta_label} < tol {delta_tol}')
                     tqdm.write('Reached tolerance threshold. Stopping training.')
+                    converged = True
                     break
             
             model.train()
@@ -109,7 +116,19 @@ def cluster(
             optimizer.step()
 
             if step % update_interval == 0:
-                tqdm.write(f"Iteration {step}, KL Loss: {loss.item():.4f}")
+                tqdm.write(f"Step {step}/{steps}, KL Loss: {loss.item():.4f}")
+
+            step += 1
+            pbar.update(1)
+
+            if step >= steps:
+                converged = True
+                break
+
+        if converged:
+            break
+
+    pbar.close()
 
     tqdm.write(f"Saving DEC to '{output_dec_file_path}'...")
     torch.save(model.state_dict(), output_dec_file_path)
