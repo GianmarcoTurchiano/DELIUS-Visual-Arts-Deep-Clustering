@@ -11,3 +11,16 @@ stages:
     - ${image_features.input_compressed_image_dir}
     outs:
     - ${image_features.output_embedding_file}
+  autoencoder_pretraining:
+    cmd: ${python_interpreter_cmd} -m delius.autoencoder_pretraining
+      --learning_rate ${training_hyperparameters.learning_rate}
+      --epochs ${training_hyperparameters.num_epochs}
+      --batch ${training_hyperparameters.batch_size}
+      --encoder_hidden_dimensions ${encoder.hidden_dimensions}
+      --input_embeddings_dimensions ${image_features.dimensions}
+      --input_embeddings_file ${image_features.output_embedding_file}
+      --output_encoder_file ${encoder.pretrained_path}
+    deps:
+    - ${image_features.output_embedding_file}
+    outs:
+    - ${encoder.pretrained_path}
