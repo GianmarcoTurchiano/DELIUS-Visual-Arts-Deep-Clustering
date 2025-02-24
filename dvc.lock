@@ -1,0 +1,17 @@
+schema: '2.0'
+stages:
+  feature_extraction:
+    cmd: python delius/feature_extraction.py --input_compressed_image_dir ./data/raw/images.tar.gz
+      --output_uncompressed_image_dir ./data/interim/images/ --output_embedding_file
+      ./data/processed/embeddings.pth --image_width 224 --image_height 224 --batch_size
+      256
+    deps:
+    - path: ./data/raw/images.tar.gz
+      hash: md5
+      md5: a5a0f9454e3dd56c5d7579782c255d9f
+      size: 2173727123
+    outs:
+    - path: ./data/processed/embeddings.pth
+      hash: md5
+      md5: fdfb826267693e58d5ee6de848ea1e1a
+      size: 491909125
