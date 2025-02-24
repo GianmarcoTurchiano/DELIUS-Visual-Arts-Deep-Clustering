@@ -25,21 +25,23 @@ stages:
     - ${image_features.output_embedding_file}
     outs:
     - ${encoder.pretrained_path}
-  clustering_initialization:
-    cmd: ${python_interpreter_cmd} -m delius.clustering_initialization
+  clusters_initialization:
+    cmd: ${python_interpreter_cmd} -m delius.clusters_initialization
       --batch ${training_hyperparameters.batch_size}
       --encoder_hidden_dimensions ${encoder.hidden_dimensions}
       --input_embeddings_dimensions ${image_features.dimensions}
       --input_embeddings_file ${image_features.output_embedding_file}
       --input_pretrained_encoder_file ${encoder.pretrained_path}
       --output_centroids_file ${clustering.centroids_path}
+      --output_assignments_file_path ${clustering.assignments_path}
       --n_clusters ${clustering.n_clusters}
     deps:
-    - delius/clustering_initialization.py
+    - delius/clusters_initialization.py
     - ${image_features.output_embedding_file}
     - ${encoder.pretrained_path}
     outs:
     - ${clustering.centroids_path}
+    - ${clustering.assignments_path}
   clustering:
     cmd: ${python_interpreter_cmd} -m delius.clustering
       --batch ${training_hyperparameters.batch_size}
@@ -48,6 +50,7 @@ stages:
       --input_embeddings_file ${image_features.output_embedding_file}
       --input_pretrained_encoder_file ${encoder.pretrained_path}
       --input_centroids_file ${clustering.centroids_path}
+      --input_assignments_file_path ${clustering.assignments_path}
       --learning_rate ${training_hyperparameters.learning_rate}
       --steps ${clustering.steps}
       --update_interval ${clustering.update_interval}
@@ -58,5 +61,6 @@ stages:
     - ${image_features.output_embedding_file}
     - ${encoder.pretrained_path}
     - ${clustering.centroids_path}
+    - ${clustering.assignments_path}
     outs:
     - ${clustering.dec_path}

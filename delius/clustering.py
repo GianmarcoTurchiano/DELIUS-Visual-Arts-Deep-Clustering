@@ -14,6 +14,7 @@ from delius.modules.embeddings_dataset import EmbeddingsDataset
 
 def cluster(
     input_centroids_file_path,
+    input_assignments_file_path,
     input_pretrained_encoder_file_path,
     input_embeddings_file_path,
     output_dec_file_path,
@@ -45,6 +46,10 @@ def cluster(
     
     centroids = torch.load(input_centroids_file_path)
 
+    tqdm.write(f"Loading initial cluster assignments from '{input_assignments_file_path}'...")
+    
+    assignments = torch.load(input_assignments_file_path)
+
     tqdm.write(f"Loading encoder from '{input_pretrained_encoder_file_path}'...")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -66,7 +71,7 @@ def cluster(
     optimizer = Adam(model.parameters(), lr=learning_rate)
     kl_loss = nn.KLDivLoss(reduction='batchmean')
     
-    y_pred_last = torch.clone(centroids).numpy()
+    y_pred_last = torch.clone(assignments).numpy()
 
     for step in tqdm(range(steps), desc='Steps'):
         for _, train_embeddings in train_loader:
@@ -114,6 +119,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--input_centroids_file', type=str)
+    parser.add_argument('--input_assignments_file_path', type=str)
     parser.add_argument('--input_pretrained_encoder_file', type=str)
     parser.add_argument('--input_embeddings_file', type=str)
     parser.add_argument('--output_dec_file', type=str)
@@ -129,6 +135,7 @@ if __name__ == '__main__':
 
     cluster(
         args.input_centroids_file,
+        args.input_assignments_file_path,
         args.input_pretrained_encoder_file,
         args.input_embeddings_file,
         args.output_dec_file,

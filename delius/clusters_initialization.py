@@ -1,5 +1,6 @@
 import argparse
 from tqdm import tqdm
+import joblib
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -14,6 +15,7 @@ def init_clusters(
     input_embeddings_file_path,
     input_pretrained_encoder_file_path,
     output_centroids_file_path,
+    output_assignments_file_path,
     n_clusters=5,
     input_embeddings_dimensions=1024,
     encoder_hidden_dimensions=[500, 500, 2000, 10],    
@@ -56,13 +58,17 @@ def init_clusters(
     tqdm.write(f"Clustering bottleneck features into {n_clusters} clusters...")
 
     kmeans = KMeans(n_clusters=n_clusters, n_init=20)
-    kmeans.fit(bottlenecks)
+    assignments = kmeans.fit_predict(bottlenecks)
 
-    tqdm.write(f"Saving centroid to '{output_centroids_file_path}'...")
+    tqdm.write(f"Saving centroids to '{output_centroids_file_path}'...")
 
     centroids = torch.tensor(kmeans.cluster_centers_, dtype=torch.float)
     torch.save(centroids, output_centroids_file_path)
 
+    tqdm.write(f"Saving cluster assignments to '{output_assignments_file_path}'...")
+
+    assignments = torch.tensor(assignments, dtype=torch.float)
+    torch.save(assignments, output_assignments_file_path)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -70,6 +76,7 @@ if __name__ == '__main__':
     parser.add_argument('--input_embeddings_file', type=str)
     parser.add_argument('--input_pretrained_encoder_file', type=str)
     parser.add_argument('--output_centroids_file', type=str)
+    parser.add_argument('--output_assignments_file_path', type=str)
     parser.add_argument('--input_embeddings_dimensions', type=int)
     parser.add_argument('--encoder_hidden_dimensions', type=int, nargs='+')
     parser.add_argument('--batch', type=int)
@@ -81,6 +88,7 @@ if __name__ == '__main__':
         args.input_embeddings_file,
         args.input_pretrained_encoder_file,
         args.output_centroids_file,
+        args.output_assignments_file_path,
         args.n_clusters,
         args.input_embeddings_dimensions,
         args.encoder_hidden_dimensions,
