@@ -1,6 +1,7 @@
 import argparse
 from tqdm import tqdm
 
+import numpy as np
 import torch
 from torch.utils.data import DataLoader
 from sklearn.manifold import TSNE
@@ -18,7 +19,8 @@ def display_clusters(
     batch_size=256,
     input_embeddings_dimensions=1024,
     encoder_hidden_dimensions=[500, 500, 2000, 10],
-    n_clusters=5
+    n_clusters=5,
+    sample_fraction = 0.1
 ):
     tqdm.write(f"Loading features from '{input_embeddings_file_path}'...")
 
@@ -54,7 +56,7 @@ def display_clusters(
     q_all = []
 
     with torch.no_grad():
-        for _, features in tqdm(loader, desc='Computing embeddings and cluster assignments'):
+        for _, _, features in tqdm(loader, desc='Computing embeddings and cluster assignments'):
             features = features.to(device)
             embeddings, q = model(features)
             q_all.append(q.detach().cpu())
@@ -65,15 +67,24 @@ def display_clusters(
 
     y_pred = torch.argmax(q_all, dim=1).numpy()
 
+    tqdm.write(f'Sampling {sample_fraction * 100}% of the embeddings...')
+
+    num_samples = int(len(embeddings_all) * sample_fraction)
+
+    indices = np.random.choice(len(embeddings_all), num_samples, replace=False)
+    sampled_embeddings = embeddings_all[indices]
+    sampled_y_pred = y_pred[indices]
+
     tqdm.write('Applying TSNE...')
 
     tsne = TSNE(n_components=2, random_state=42)
-    tsne_embedding = tsne.fit_transform(embeddings_all)
+    tsne_embedding = tsne.fit_transform(sampled_embeddings)
 
     tqdm.write(f"Saving image to '{output_tsne_pic_file_path}'...")
 
+    # Plot and save the result
     plt.figure(dpi=600)
-    plt.scatter(tsne_embedding[:, 0], tsne_embedding[:, 1], c=y_pred, cmap='viridis')
+    plt.scatter(tsne_embedding[:, 0], tsne_embedding[:, 1], c=sampled_y_pred, cmap='viridis')
     plt.savefig(output_tsne_pic_file_path, bbox_inches='tight')
     plt.close()
 

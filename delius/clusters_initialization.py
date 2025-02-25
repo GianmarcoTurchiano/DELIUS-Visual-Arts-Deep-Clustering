@@ -48,7 +48,7 @@ def init_clusters(
     bottlenecks = []
 
     with torch.no_grad():
-        for _, features in tqdm(loader, desc='Computing bottleneck features'):
+        for _, _, features in tqdm(loader, desc='Computing bottleneck features'):
             features = features.to(device)
             bottleneck = model(features)
             bottlenecks.append(bottleneck.cpu().numpy())
@@ -62,12 +62,12 @@ def init_clusters(
 
     tqdm.write(f"Saving centroids to '{output_centroids_file_path}'...")
 
-    centroids = torch.tensor(kmeans.cluster_centers_, dtype=torch.float)
+    centroids = torch.from_numpy(kmeans.cluster_centers_).float() 
     torch.save(centroids, output_centroids_file_path)
 
     tqdm.write(f"Saving cluster assignments to '{output_assignments_file_path}'...")
 
-    assignments = torch.tensor(assignments, dtype=torch.float)
+    assignments = torch.tensor(assignments, dtype=torch.long)
     torch.save(assignments, output_assignments_file_path)
 
 if __name__ == '__main__':

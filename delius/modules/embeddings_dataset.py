@@ -17,4 +17,4 @@ class EmbeddingsDataset(Dataset):
         names = self.names[idx]
         embeddings = self.embeddings[idx]
         
-        return names, embeddings
+        return idx, names, embeddings

@@ -34,7 +34,7 @@ def cluster(
     train_loader = DataLoader(
         dataset,
         batch_size=batch_size,
-        shuffle=True
+        shuffle=False
     )
 
     val_loader = DataLoader(
@@ -68,35 +68,40 @@ def cluster(
         encoder,
         n_clusters,
         encoder_hidden_dimensions[-1]
-    ).to(device)
+    )
 
-    model.centroids = centroids
+    model.clustering_layer.clusters.data = centroids
+
+    model = model.to(device)
 
     optimizer = Adam(model.parameters(), lr=learning_rate)
     kl_loss = nn.KLDivLoss(reduction='batchmean')
     
     y_pred_last = torch.clone(assignments).numpy()
 
-    step = 1
+    step = 0
+    loss_total = 0
 
     pbar = tqdm(total=steps)
 
     converged = False
 
     while True:
-        for _, train_embeddings in train_loader:
+        for idx, _, train_embeddings in train_loader:
             if step % update_interval == 0:
                 q_all = []
+                p_all = []
                 
                 model.eval()
                 with torch.no_grad():
-                    for _, val_embeddings in tqdm(val_loader, leave=False, desc='Computing delta'):
+                    for _, _, val_embeddings in tqdm(val_loader, leave=False, desc='Computing delta'):
                         val_embeddings = val_embeddings.to(device)
                         _, q = model(val_embeddings)
                         q_all.append(q.detach().cpu())
                 
                 q_all = torch.cat(q_all, dim=0)
-                
+                p_all = target_distribution(q_all)
+
                 y_pred = torch.argmax(q_all, dim=1).numpy()
 
                 delta_label = np.sum(y_pred != y_pred_last).astype(np.float32) / y_pred.shape[0]
@@ -113,14 +118,18 @@ def cluster(
             model.train()
             train_embeddings = train_embeddings.to(device)
             optimizer.zero_grad()
-            _, q = model(train_embeddings)
-            p_batch = target_distribution(q.detach())
-            loss = kl_loss(torch.log(q), p_batch)
+            _, q_batch = model(train_embeddings)
+            p_batch = p_all[idx]
+            p_batch = p_batch.to(device)
+            loss = kl_loss(torch.log(q_batch), p_batch)
             loss.backward()
             optimizer.step()
+            loss_total += loss.item()
 
             if step % update_interval == 0:
-                tqdm.write(f"Step {step}/{steps}, KL Loss: {loss.item():.4f}")
+                loss_avg = loss_total / update_interval
+                tqdm.write(f"Step {step}/{steps}, KL Loss: {loss_avg:.4f}")
+                loss_total = 0
 
             step += 1
             pbar.update(1)

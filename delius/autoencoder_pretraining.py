@@ -45,7 +45,7 @@ def pretrain_autoencoder(
     for epoch in tqdm(range(epochs), desc='Epochs'):
         total_loss = 0.0
         
-        for _, features in tqdm(loader, desc='Batches', leave=False):
+        for _, _, features in tqdm(loader, desc='Batches', leave=False):
             features = features.to(device)
             optimizer.zero_grad()
             

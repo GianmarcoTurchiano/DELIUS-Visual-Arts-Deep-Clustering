@@ -9,12 +9,12 @@ stages:
       --batch_size ${hyperparameters.batch_size}
     deps:
     - delius/features_extraction.py
-    - ${image_features.compressed_image_dir}
+    - ${images.compressed_image_dir}
     outs:
     - ${image_features.embeddings_file}
   autoencoder_pretraining:
     cmd: ${python_interpreter_cmd} -m delius.autoencoder_pretraining
-      --learning_rate ${  learning_rate}
+      --learning_rate ${hyperparameters.learning_rate}
       --epochs ${hyperparameters.num_epochs}
       --batch ${hyperparameters.batch_size}
       --encoder_hidden_dimensions ${encoder.hidden_dimensions}
@@ -45,7 +45,7 @@ stages:
     - ${clustering.assignments_path}
   clustering:
     cmd: ${python_interpreter_cmd} -m delius.clustering
-      --batch ${hyperparameters.batch_size}
+      --batch 128
       --encoder_hidden_dimensions ${encoder.hidden_dimensions}
       --input_embeddings_dimensions ${image_features.dimensions}
       --input_embeddings_file ${image_features.embeddings_file}
