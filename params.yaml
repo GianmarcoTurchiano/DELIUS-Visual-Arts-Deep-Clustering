@@ -28,3 +28,6 @@ clustering:
   update_interval: 140
   delta_tol: 0.001
   tsne_pic_file: ./models/clustering_pics/tsne.png
+  samples_pic_file: ./models/clustering_pics/clustered_samples.png
+  n_samples_per_cluster: 5
+  embeddings_sample_franction: 0.1
