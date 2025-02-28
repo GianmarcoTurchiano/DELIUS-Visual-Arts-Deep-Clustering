@@ -14,15 +14,15 @@ from tqdm import tqdm
 
 class FeatureExtractor(nn.Module):
     def __init__(self):
-        super(FeatureExtractor, self).__init__()
+        super().__init__()
         densenet = densenet121(weights=DenseNet121_Weights.DEFAULT)
-        self.features = nn.Sequential(*list(densenet.children())[:-1])
+        self.features = densenet.features
         self.pooling = nn.AdaptiveAvgPool2d(1)
-    
+
     def forward(self, x):
         x = self.features(x)
         x = self.pooling(x)
-        return x.view(x.size(0), -1)
+        return torch.flatten(x, 1)
 
 
 class ArtDataset(Dataset):
@@ -43,7 +43,7 @@ class ArtDataset(Dataset):
         self.transform = transforms.Compose([
             transforms.Resize((image_height, image_width)),
             transforms.ToTensor(),
-            transforms.Lambda(lambda x: x / 255.0) # Min-Max normalization 
+            #transforms.Lambda(lambda x: x / 255.0) # Min-Max normalization 
         ])
 
         image_directory_path = Path(image_directory)

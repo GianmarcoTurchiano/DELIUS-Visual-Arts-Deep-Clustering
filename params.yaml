@@ -9,25 +9,31 @@ images:
 image_features:
   embeddings_file: ./data/processed/embeddings.pth
   dimensions: 1024
+  extraction:
+    batch_size: 256
 
 encoder:
   hidden_dimensions: 500 500 2000 10
-  pretrained_path: ./models/pretrained/model.pth
+  pretrained_path: ./models/pretrained/encoder.pth
 
 hyperparameters:
-  batch_size: 256
-  learning_rate: 1e-3
-  num_epochs: 200
+  pretraining:
+    batch_size: 256
+    learning_rate: 1e-3
+    num_epochs: 200
+  clustering:
+    batch_size: 256
+    learning_rate: 1e-3
+    n_clusters: 10
+    steps: 8000
+    update_interval: 140
+    delta_tol: 0.001
 
 clustering:
-  n_clusters: 10
   centroids_path: ./models/kmeans/centroids.pth
   assignments_path: ./models/kmeans/assignments.pth
-  dec_path: ./models/dec/model.pth
-  steps: 8000
-  update_interval: 140
-  delta_tol: 0.001
-  tsne_pic_file: ./models/clustering_pics/tsne.png
-  samples_pic_file: ./models/clustering_pics/clustered_samples.png
+  dec_path: ./models/dec/dec.pth
+  tsne_pic_file: ./models/clustering_pics/clusters.png
+  samples_pic_file: ./models/clustering_pics/samples.png
   n_samples_per_cluster: 5
   embeddings_sample_franction: 0.1
