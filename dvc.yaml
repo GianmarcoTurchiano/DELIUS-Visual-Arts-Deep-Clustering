@@ -56,7 +56,7 @@ stages:
       --steps ${hyperparameters.clustering.steps}
       --update_interval ${hyperparameters.clustering.update_interval}
       --delta_tol ${hyperparameters.clustering.delta_tol}
-      --output_dec_file ${hyperparameters.clustering.dec_path}
+      --output_dec_file ${clustering.dec_path}
       --n_clusters ${hyperparameters.clustering.n_clusters}
     deps:
     - delius/clustering.py
@@ -68,7 +68,7 @@ stages:
     - ${clustering.dec_path}
   clusters_visualization:
     cmd: ${python_interpreter_cmd} -m delius.clusters_visualization
-      --batch ${hyperparameters.batch_size}
+      --batch ${image_features.extraction.batch_size}
       --input_embeddings_file ${image_features.embeddings_file}
       --input_dec_file ${clustering.dec_path}
       --output_tsne_pic_file ${clustering.tsne_pic_file}
