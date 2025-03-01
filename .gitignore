@@ -1,7 +1,9 @@
 requirements.in
 
 # Data
-/data/
+/data/external/
+/data/processed/
+/data/interim/
 
 # Mac OS-specific storage files
 .DS_Store
