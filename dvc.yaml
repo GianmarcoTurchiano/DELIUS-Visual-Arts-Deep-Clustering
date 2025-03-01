@@ -1,0 +1,88 @@
+stages:
+  features_extraction:
+    cmd: ${python_interpreter_cmd} -m delius.features_extraction
+      --input_compressed_image_dir ${images.compressed_image_dir}
+      --output_uncompressed_image_dir ${images.uncompressed_image_dir}
+      --output_embedding_file ${image_features.embeddings_file}
+      --image_width ${images.image_width}
+      --image_height ${images.image_height}
+      --batch_size ${image_features.extraction.batch_size}
+    deps:
+    - delius/features_extraction.py
+    - ${images.compressed_image_dir}
+    outs:
+    - ${image_features.embeddings_file}
+  encoder_pretraining:
+    cmd: ${python_interpreter_cmd} -m delius.encoder_pretraining
+      --learning_rate ${hyperparameters.pretraining.learning_rate}
+      --epochs ${hyperparameters.pretraining.num_epochs}
+      --batch ${hyperparameters.pretraining.batch_size}
+      --encoder_hidden_dimensions ${encoder.hidden_dimensions}
+      --input_embeddings_dimensions ${image_features.dimensions}
+      --input_embeddings_file ${image_features.embeddings_file}
+      --output_encoder_file ${encoder.pretrained_path}
+    deps:
+    - delius/encoder_pretraining.py
+    - ${image_features.embeddings_file}
+    outs:
+    - ${encoder.pretrained_path}
+  clusters_initialization:
+    cmd: ${python_interpreter_cmd} -m delius.clusters_initialization
+      --batch ${image_features.extraction.batch_size}
+      --encoder_hidden_dimensions ${encoder.hidden_dimensions}
+      --input_embeddings_dimensions ${image_features.dimensions}
+      --input_embeddings_file ${image_features.embeddings_file}
+      --input_pretrained_encoder_file ${encoder.pretrained_path}
+      --output_centroids_file ${clustering.centroids_path}
+      --output_assignments_file ${clustering.assignments_path}
+      --n_clusters ${hyperparameters.clustering.n_clusters}
+    deps:
+    - delius/clusters_initialization.py
+    - ${image_features.embeddings_file}
+    - ${encoder.pretrained_path}
+    outs:
+    - ${clustering.centroids_path}
+    - ${clustering.assignments_path}
+  deep_embedded_clustering:
+    cmd: ${python_interpreter_cmd} -m delius.deep_embedded_clustering
+      --batch ${hyperparameters.clustering.batch_size}
+      --encoder_hidden_dimensions ${encoder.hidden_dimensions}
+      --input_embeddings_dimensions ${image_features.dimensions}
+      --input_embeddings_file ${image_features.embeddings_file}
+      --input_pretrained_encoder_file ${encoder.pretrained_path}
+      --input_centroids_file ${clustering.centroids_path}
+      --input_assignments_file ${clustering.assignments_path}
+      --learning_rate ${hyperparameters.clustering.learning_rate}
+      --steps ${hyperparameters.clustering.steps}
+      --update_interval ${hyperparameters.clustering.update_interval}
+      --delta_tol ${hyperparameters.clustering.delta_tol}
+      --output_dec_file ${clustering.dec_path}
+      --n_clusters ${hyperparameters.clustering.n_clusters}
+    deps:
+    - delius/deep_embedded_clustering.py
+    - ${image_features.embeddings_file}
+    - ${encoder.pretrained_path}
+    - ${clustering.centroids_path}
+    - ${clustering.assignments_path}
+    outs:
+    - ${clustering.dec_path}
+  clusters_visualization:
+    cmd: ${python_interpreter_cmd} -m delius.clusters_visualization
+      --batch ${image_features.extraction.batch_size}
+      --input_embeddings_file ${image_features.embeddings_file}
+      --input_dec_file ${clustering.dec_path}
+      --output_tsne_pic_file ${clustering.tsne_pic_file}
+      --input_embeddings_dimensions ${image_features.dimensions}
+      --encoder_hidden_dimensions ${encoder.hidden_dimensions}
+      --n_clusters ${hyperparameters.clustering.n_clusters}
+      --input_image_dir ${images.uncompressed_image_dir}
+      --output_clustered_samples_file ${clustering.samples_pic_file}
+      --n_samples_per_cluster ${clustering.n_samples_per_cluster}
+      --embeddings_sample_fraction ${clustering.embeddings_sample_franction}
+    deps:
+    - delius/clusters_visualization.py
+    - ${clustering.dec_path}
+    - ${image_features.embeddings_file}
+    outs:
+    - ${clustering.tsne_pic_file}
+    - ${clustering.samples_pic_file}
