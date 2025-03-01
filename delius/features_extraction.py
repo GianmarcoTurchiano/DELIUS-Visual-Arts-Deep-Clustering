@@ -63,8 +63,8 @@ class ArtDataset(Dataset):
         return str(img_path), image
     
 
-def get_densenet_embeddings(
-        image_directory,
+def extract_densenet_embeddings(
+        image_directory: str,
         image_width=224,
         image_height=224,
         batch_size=256
@@ -105,25 +105,6 @@ def get_densenet_embeddings(
     return dict(zip(names, embeddings))
 
 
-def save_densenet_embeddings(
-        image_directory,
-        output_file,
-        image_width=224,
-        image_height=224,
-        batch_size=256  
-):
-    embeddings = get_densenet_embeddings(
-        image_directory,
-        image_width,
-        image_height,
-        batch_size
-    )
-
-    tqdm.write(f"Saving embeddings to file '{output_file}'...")
-
-    torch.save(embeddings, output_file)
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
@@ -148,10 +129,13 @@ if __name__ == '__main__':
     with tarfile.open(input_compressed_image_dir, "r:gz") as tar:
         tar.extractall(output_uncompressed_image_dir)
 
-    embeddings = save_densenet_embeddings(
+    embeddings = extract_densenet_embeddings(
         output_uncompressed_image_dir,
-        output_embedding_file,
         image_width,
         image_height,
         batch_size
     )
+
+    tqdm.write(f"Saving embeddings to file '{output_embedding_file}'...")
+
+    torch.save(embeddings, output_embedding_file)
