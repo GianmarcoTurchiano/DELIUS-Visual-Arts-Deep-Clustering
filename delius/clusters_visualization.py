@@ -95,7 +95,7 @@ def sample_n_files_per_cluster(
     n_clusters=10,
     n_samples_per_cluster=5,
 ):
-    tqdm.write(f"Sampling {n_samples_per_cluster} pictures for each of the {n_clusters}...")
+    tqdm.write(f"Sampling {n_samples_per_cluster} pictures for each of the {n_clusters} clusters...")
     
     cluster_images = {i: [] for i in range(n_clusters)}
     cluster_counts = {i: 0 for i in range(n_clusters)}

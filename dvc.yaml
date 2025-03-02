@@ -45,8 +45,8 @@ stages:
     outs:
     - ${clustering.centroids_path}
     - ${clustering.assignments_path}
-  deep_embedded_clustering:
-    cmd: ${python_interpreter_cmd} -m delius.deep_embedded_clustering
+  dec_fitting:
+    cmd: ${python_interpreter_cmd} -m delius.dec_fitting
       --batch ${hyperparameters.clustering.batch_size}
       --encoder_hidden_dimensions ${encoder.hidden_dimensions}
       --input_embeddings_dimensions ${image_features.dimensions}
@@ -62,7 +62,7 @@ stages:
       --n_clusters ${hyperparameters.clustering.n_clusters}
       --seed ${seed}
     deps:
-    - delius/deep_embedded_clustering.py
+    - delius/dec_fitting.py
     - ${image_features.embeddings_file}
     - ${encoder.pretrained_path}
     - ${clustering.centroids_path}

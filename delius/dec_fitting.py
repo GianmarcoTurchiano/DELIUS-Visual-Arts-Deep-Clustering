@@ -13,7 +13,7 @@ from delius.modules.encoder import EmbeddingsEncoder, load_embeddings_encoder
 from delius.modules.embeddings_dataset import EmbeddingsDataset, load_embeddings_dataset
 
 
-def deep_embedded_clustering(
+def fit_dec(
     encoder: EmbeddingsEncoder,
     dataset: EmbeddingsDataset,
     centroids: torch.Tensor,
@@ -169,7 +169,7 @@ if __name__ == '__main__':
         args.encoder_hidden_dimensions
     )
 
-    model = deep_embedded_clustering(
+    model = fit_dec(
         encoder,
         dataset,
         centroids,
