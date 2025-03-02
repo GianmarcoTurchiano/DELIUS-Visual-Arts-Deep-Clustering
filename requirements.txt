@@ -134,10 +134,18 @@ configobj==5.0.9
     # via
     #   -r requirements.in
     #   dvc
+contourpy==1.3.1
+    # via
+    #   -r requirements.in
+    #   matplotlib
 cryptography==44.0.1
     # via
     #   -r requirements.in
     #   asyncssh
+cycler==0.12.1
+    # via
+    #   -r requirements.in
+    #   matplotlib
 dictdiffer==0.9.0
     # via
     #   -r requirements.in
@@ -210,6 +218,10 @@ flufl-lock==8.1.0
     # via
     #   -r requirements.in
     #   dvc
+fonttools==4.56.0
+    # via
+    #   -r requirements.in
+    #   matplotlib
 frozenlist==1.5.0
     # via
     #   -r requirements.in
@@ -277,6 +289,10 @@ joblib==1.4.2
     # via
     #   -r requirements.in
     #   scikit-learn
+kiwisolver==1.4.8
+    # via
+    #   -r requirements.in
+    #   matplotlib
 kombu==5.4.2
     # via
     #   -r requirements.in
@@ -291,6 +307,8 @@ markupsafe==3.0.2
     # via
     #   -r requirements.in
     #   jinja2
+matplotlib==3.10.1
+    # via -r requirements.in
 mdurl==0.1.2
     # via
     #   -r requirements.in
@@ -313,6 +331,8 @@ networkx==3.4.2
 numpy==2.2.3
     # via
     #   -r requirements.in
+    #   contourpy
+    #   matplotlib
     #   scikit-learn
     #   scipy
     #   torchvision
@@ -389,6 +409,7 @@ packaging==24.2
     #   build
     #   dvc
     #   hydra-core
+    #   matplotlib
 pathspec==0.12.1
     # via
     #   -r requirements.in
@@ -397,6 +418,7 @@ pathspec==0.12.1
 pillow==11.1.0
     # via
     #   -r requirements.in
+    #   matplotlib
     #   torchvision
 pip-tools==7.4.1
     # via -r requirements.in
@@ -454,6 +476,7 @@ pyparsing==3.2.1
     #   -r requirements.in
     #   dvc
     #   grandalf
+    #   matplotlib
     #   pydot
 pyproject-hooks==1.2.0
     # via
@@ -466,6 +489,7 @@ python-dateutil==2.9.0.post0
     #   aiobotocore
     #   botocore
     #   celery
+    #   matplotlib
 pyyaml==6.0.2
     # via
     #   -r requirements.in

@@ -55,7 +55,7 @@ def plot_2D_clusters(
 ):
     tqdm.write('Applying TSNE...')
 
-    tsne = TSNE(n_components=2, random_state=42)
+    tsne = TSNE(n_components=2, random_state=27)
     tsne_embedding = tsne.fit_transform(embeddings)
 
     # Create figure and plot
@@ -76,7 +76,9 @@ def sample_clustered_embeddings(
 
     num_samples = int(len(embeddings) * embeddings_sample_fraction)
 
-    indices = np.random.choice(len(embeddings), num_samples, replace=False)
+    rng = np.random.default_rng(seed=27)
+    indices = rng.choice(len(embeddings), num_samples, replace=False)
+
     sampled_embeddings = embeddings[indices]
     sampled_assignments = assignments[indices]
     sampled_names = [names[i] for i in indices]
@@ -91,13 +93,22 @@ def sample_n_files_per_cluster(
     n_clusters=10,
     n_samples_per_cluster=5,
 ):
-    tqdm.write(f"Sampling {n_samples_per_cluster} pictures for each of the {n_clusters}.")
-
-    cluster_images = {i: [] for i in range(n_clusters)}
+    tqdm.write(f"Sampling {n_samples_per_cluster} pictures for each of the {n_clusters}...")
     
+    cluster_images = {i: [] for i in range(n_clusters)}
+    cluster_counts = {i: 0 for i in range(n_clusters)}
+    
+    collected = 0
+    total_needed = n_clusters * n_samples_per_cluster
+
     for img_name, cluster in zip(names, assignments):
-        if len(cluster_images[cluster]) < 5:
+        if cluster_counts[cluster] < n_samples_per_cluster:
             cluster_images[cluster].append(os.path.join(image_dir_path, img_name))
+            cluster_counts[cluster] += 1
+            collected += 1
+            
+            if collected >= total_needed:
+                break
 
     return cluster_images
 
