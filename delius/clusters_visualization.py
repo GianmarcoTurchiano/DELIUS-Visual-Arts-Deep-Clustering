@@ -9,14 +9,14 @@ from torch.utils.data import DataLoader
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 
-from delius.modules.embeddings_dataset import EmbeddingsDataset, load_embeddings_dataset
-from delius.modules.DEC import DEC
-from delius.modules.encoder import EmbeddingsEncoder
+from delius.modules.features_dataset import FeaturesDataset, load_features_dataset
+from delius.modules.deep_embedded_clustering import DEC
+from delius.modules.features_encoder import FeaturesEncoder
 
 
 def compute_embeddings_and_assignments(
     model: DEC,
-    dataset: EmbeddingsDataset,
+    dataset: FeaturesDataset,
     batch_size=256
 ):
     loader = DataLoader(
@@ -163,13 +163,13 @@ if __name__ == '__main__':
 
     tqdm.write(f"Loading features from '{args.input_embeddings_file}'...")
 
-    dataset = load_embeddings_dataset(args.input_embeddings_file)
+    dataset = load_features_dataset(args.input_embeddings_file)
 
     tqdm.write(f"Loading DEC from '{args.input_dec_file}'...")
 
     weights = torch.load(args.input_dec_file, weights_only=True)
 
-    encoder = EmbeddingsEncoder(
+    encoder = FeaturesEncoder(
         args.input_embeddings_dimensions,
         args.encoder_hidden_dimensions
     )

@@ -8,24 +8,12 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
-from torchvision.models import densenet121, DenseNet121_Weights
 from tqdm import tqdm
 
-
-class FeatureExtractor(nn.Module):
-    def __init__(self):
-        super().__init__()
-        densenet = densenet121(weights=DenseNet121_Weights.DEFAULT)
-        self.features = densenet.features
-        self.pooling = nn.AdaptiveAvgPool2d(1)
-
-    def forward(self, x):
-        x = self.features(x)
-        x = self.pooling(x)
-        return torch.flatten(x, 1)
+from delius.modules.features_extractor import DenseNetFeaturesExtractor
 
 
-class ArtDataset(Dataset):
+class PicsDataset(Dataset):
     def __init__(
         self,
         image_directory,
@@ -63,7 +51,8 @@ class ArtDataset(Dataset):
         return str(img_path), image
     
 
-def extract_densenet_embeddings(
+def extract_features(
+        extractor: nn.Module,
         image_directory: str,
         image_width=224,
         image_height=224,
@@ -71,7 +60,7 @@ def extract_densenet_embeddings(
 ):
     tqdm.write(f"Reading '{image_directory}'...")
 
-    dataset = ArtDataset(
+    dataset = PicsDataset(
         image_directory,
         image_width,
         image_height
@@ -83,12 +72,10 @@ def extract_densenet_embeddings(
         shuffle=False
     )
 
-    tqdm.write(f'Loading model...')
-
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    model = FeatureExtractor().to(device)
-    model.eval()
+    extractor = extractor.to(device)
+    extractor.eval()
 
     names = []
     embeddings = []
@@ -99,7 +86,7 @@ def extract_densenet_embeddings(
             names.extend(name)
             
             images = images.to(device)
-            embedding = model(images)
+            embedding = extractor(images)
             embeddings.extend(embedding)
 
     return dict(zip(names, embeddings))
@@ -129,7 +116,12 @@ if __name__ == '__main__':
     with tarfile.open(input_compressed_image_dir, "r:gz") as tar:
         tar.extractall(output_uncompressed_image_dir)
 
-    embeddings = extract_densenet_embeddings(
+    tqdm.write(f'Loading model...')
+
+    extractor = DenseNetFeaturesExtractor()
+
+    embeddings = extract_features(
+        extractor,
         output_uncompressed_image_dir,
         image_width,
         image_height,

@@ -8,12 +8,12 @@ import torch.nn as nn
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 
-from delius.modules.embeddings_dataset import EmbeddingsDataset, load_embeddings_dataset
-from delius.modules.autoencoder import EmbeddingsAutoencoder
+from delius.modules.features_dataset import FeaturesDataset, load_features_dataset
+from delius.modules.features_autoencoder import FeaturesAutoencoder
 
 
 def pretrain_encoder(
-    dataset: EmbeddingsDataset,
+    dataset: FeaturesDataset,
     input_embeddings_dimensions=1024,
     encoder_hidden_dimensions: list[int]=[500, 500, 2000, 10],
     batch_size=256,
@@ -36,7 +36,7 @@ def pretrain_encoder(
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    model = EmbeddingsAutoencoder(
+    model = FeaturesAutoencoder(
         input_embeddings_dimensions,
         encoder_hidden_dimensions
     ).to(device)
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     tqdm.write(f"Loading features from '{args.input_embeddings_file}'...")
-    dataset = load_embeddings_dataset(args.input_embeddings_file)
+    dataset = load_features_dataset(args.input_embeddings_file)
 
     model = pretrain_encoder(
         dataset,

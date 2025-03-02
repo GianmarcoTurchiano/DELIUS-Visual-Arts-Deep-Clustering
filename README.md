@@ -29,16 +29,17 @@ pip install git+https://github.com/GianmarcoTurchiano/DELIUS-Visual-Arts-Deep-Cl
 Given a variable `pics_dir_path`, standing for the path of a directory containing pictures (files in the format of `.jpeg`, `.png`, etc), the module may be employed as displayed here.
 
 ```python
-from delius.features_extraction import extract_densenet_embeddings
-from delius.modules.embeddings_dataset import EmbeddingsDataset
+from delius.features_extraction import extract_features, DenseNetFeaturesExtractor
+from delius.modules.features_dataset import FeaturesDataset
 from delius.encoder_pretraining import pretrain_encoder
-from delius.clusters_initialization import init_clusters
+from delius.clusters_initialization import initialize_clusters
 from delius.dec_fitting import fit_dec
 
-embeddings = extract_densenet_embeddings(pics_dir_path)
-dataset = EmbeddingsDataset(embeddings)
+extractor = DenseNetFeaturesExtractor()
+features = extract_features(extractor, pics_dir_path)
+dataset = FeaturesDataset(features)
 encoder = pretrain_encoder(dataset)
-centroids, assignments = init_clusters(dataset, encoder)
+centroids, assignments = initialize_clusters(dataset, encoder)
 dec = fit_dec(encoder, dataset, centroids, assignments)
 ```
 

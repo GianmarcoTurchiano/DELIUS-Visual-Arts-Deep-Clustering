@@ -1,19 +1,18 @@
 import argparse
 from tqdm import tqdm
 
-import random
 import numpy as np
 from sklearn.cluster import KMeans
 import torch
 from torch.utils.data import DataLoader
 
-from delius.modules.encoder import EmbeddingsEncoder, load_embeddings_encoder
-from delius.modules.embeddings_dataset import EmbeddingsDataset, load_embeddings_dataset
+from delius.modules.features_encoder import FeaturesEncoder, load_features_encoder
+from delius.modules.features_dataset import FeaturesDataset, load_features_dataset
 
 
-def init_clusters(
-    dataset: EmbeddingsDataset,
-    model: EmbeddingsEncoder,
+def initialize_clusters(
+    dataset: FeaturesDataset,
+    model: FeaturesEncoder,
     n_clusters=10,
     batch_size=256,
     seed=42
@@ -67,17 +66,17 @@ if __name__ == '__main__':
 
     tqdm.write(f"Loading features from '{args.input_embeddings_file}'...")
 
-    dataset = load_embeddings_dataset(args.input_embeddings_file)
+    dataset = load_features_dataset(args.input_embeddings_file)
 
     tqdm.write(f"Loading encoder from '{args.input_pretrained_encoder_file}'...")
 
-    model = load_embeddings_encoder(
+    model = load_features_encoder(
         args.input_pretrained_encoder_file,
         args.input_embeddings_dimensions,
         args.encoder_hidden_dimensions
     )
 
-    centroids, assignments = init_clusters(
+    centroids, assignments = initialize_clusters(
         dataset,
         model,
         args.n_clusters,

@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class ClusteringLayer(nn.Module):
     def __init__(self, n_clusters=10, input_dim=10, alpha=1.0, weights=None):
         super(ClusteringLayer, self).__init__()

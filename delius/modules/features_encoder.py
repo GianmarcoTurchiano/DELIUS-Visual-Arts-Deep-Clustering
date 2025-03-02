@@ -2,13 +2,13 @@ import torch.nn as nn
 import torch
 
 
-class EmbeddingsEncoder(nn.Module):
+class FeaturesEncoder(nn.Module):
     def __init__(
         self,
         input_embeddings_dimensions=1024,
         hidden_dims: list[int]=[500, 500, 2000, 10]
     ):
-        super(EmbeddingsEncoder, self).__init__()
+        super(FeaturesEncoder, self).__init__()
 
         encoder_layers = []
 
@@ -25,12 +25,12 @@ class EmbeddingsEncoder(nn.Module):
         return self.encoder(x)
 
 
-def load_embeddings_encoder(
+def load_features_encoder(
     file_path: str,
     input_embeddings_dimensions=1024,
     hidden_dims: list[int]=[500, 500, 2000, 10],
 ):
-    model = EmbeddingsEncoder(
+    model = FeaturesEncoder(
         input_embeddings_dimensions,
         hidden_dims
     )

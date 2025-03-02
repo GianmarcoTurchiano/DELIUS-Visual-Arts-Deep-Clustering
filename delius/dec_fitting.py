@@ -8,14 +8,14 @@ from torch import nn
 from torch.utils.data import DataLoader
 from torch.optim import Adam
 
-from delius.modules.DEC import DEC, target_distribution
-from delius.modules.encoder import EmbeddingsEncoder, load_embeddings_encoder
-from delius.modules.embeddings_dataset import EmbeddingsDataset, load_embeddings_dataset
+from delius.modules.deep_embedded_clustering import DEC, target_distribution
+from delius.modules.features_encoder import FeaturesEncoder, load_features_encoder
+from delius.modules.features_dataset import FeaturesDataset, load_features_dataset
 
 
 def fit_dec(
-    encoder: EmbeddingsEncoder,
-    dataset: EmbeddingsDataset,
+    encoder: FeaturesEncoder,
+    dataset: FeaturesDataset,
     centroids: torch.Tensor,
     assignments: torch.Tensor,
     bottleneck_dimensions=10,
@@ -151,7 +151,7 @@ if __name__ == '__main__':
 
     tqdm.write(f"Loading features from '{args.input_embeddings_file}'...")
 
-    dataset = load_embeddings_dataset(args.input_embeddings_file)
+    dataset = load_features_dataset(args.input_embeddings_file)
 
     tqdm.write(f"Loading initial centroids from '{args.input_centroids_file}'...")
     
@@ -163,7 +163,7 @@ if __name__ == '__main__':
 
     tqdm.write(f"Loading encoder from '{args.input_pretrained_encoder_file}'...")
 
-    encoder = load_embeddings_encoder(
+    encoder = load_features_encoder(
         args.input_pretrained_encoder_file,
         args.input_embeddings_dimensions,
         args.encoder_hidden_dimensions

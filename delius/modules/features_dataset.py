@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import Dataset
 
 
-class EmbeddingsDataset(Dataset):
+class FeaturesDataset(Dataset):
     def __init__(
         self,
         embeddings: dict
@@ -20,9 +20,9 @@ class EmbeddingsDataset(Dataset):
         return idx, names, embeddings
 
 
-def load_embeddings_dataset(file_path: str):
+def load_features_dataset(file_path: str):
     data = torch.load(file_path, weights_only=True)
 
-    dataset = EmbeddingsDataset(data)
+    dataset = FeaturesDataset(data)
 
     return dataset
