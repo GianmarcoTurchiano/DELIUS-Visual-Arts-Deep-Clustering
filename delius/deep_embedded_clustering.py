@@ -1,6 +1,7 @@
 import argparse
 from tqdm import tqdm
 
+import random
 import numpy as np
 import torch
 from torch import nn
@@ -23,8 +24,16 @@ def deep_embedded_clustering(
     steps=8000,
     update_interval=140,
     delta_tol=0.001,
-    n_clusters=5
+    n_clusters=10,
+    seed=42
 ):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
     train_loader = DataLoader(
         dataset,
         batch_size=batch_size,
@@ -136,6 +145,7 @@ if __name__ == '__main__':
     parser.add_argument('--update_interval', type=int)
     parser.add_argument('--delta_tol', type=float)
     parser.add_argument('--n_clusters', type=int)
+    parser.add_argument('--seed', type=int)
 
     args = parser.parse_args()
 
@@ -170,7 +180,8 @@ if __name__ == '__main__':
         args.steps,
         args.update_interval,
         args.delta_tol,
-        args.n_clusters
+        args.n_clusters,
+        args.seed
     )
 
     tqdm.write(f"Saving DEC to '{args.output_dec_file}'...")

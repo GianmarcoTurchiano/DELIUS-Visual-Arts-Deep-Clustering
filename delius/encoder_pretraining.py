@@ -1,6 +1,8 @@
 import argparse
 from tqdm import tqdm
 
+import numpy as np
+import random
 import torch
 import torch.nn as nn
 from torch.optim import Adam
@@ -16,8 +18,16 @@ def pretrain_encoder(
     encoder_hidden_dimensions: list[int]=[500, 500, 2000, 10],
     batch_size=256,
     epochs=200,
-    learning_rate=1e-3    
+    learning_rate=1e-3,
+    seed=42
 ):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
     loader = DataLoader(
         dataset,
         batch_size=batch_size,
@@ -68,6 +78,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch', type=int)
     parser.add_argument('--epochs', type=int)
     parser.add_argument('--learning_rate', type=float)
+    parser.add_argument('--seed', type=int)
 
     args = parser.parse_args()
 
@@ -80,7 +91,8 @@ if __name__ == '__main__':
         args.encoder_hidden_dimensions,
         args.batch,
         args.epochs,
-        args.learning_rate
+        args.learning_rate,
+        args.seed
     )
 
     tqdm.write(f"Saving encoder to '{args.output_encoder_file}'...")

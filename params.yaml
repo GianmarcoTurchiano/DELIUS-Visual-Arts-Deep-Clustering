@@ -1,3 +1,5 @@
+seed: 42
+
 python_interpreter_cmd: python
 
 images:

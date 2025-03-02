@@ -21,6 +21,7 @@ stages:
       --input_embeddings_dimensions ${image_features.dimensions}
       --input_embeddings_file ${image_features.embeddings_file}
       --output_encoder_file ${encoder.pretrained_path}
+      --seed ${seed}
     deps:
     - delius/encoder_pretraining.py
     - ${image_features.embeddings_file}
@@ -36,6 +37,7 @@ stages:
       --output_centroids_file ${clustering.centroids_path}
       --output_assignments_file ${clustering.assignments_path}
       --n_clusters ${hyperparameters.clustering.n_clusters}
+      --seed ${seed}
     deps:
     - delius/clusters_initialization.py
     - ${image_features.embeddings_file}
@@ -58,6 +60,7 @@ stages:
       --delta_tol ${hyperparameters.clustering.delta_tol}
       --output_dec_file ${clustering.dec_path}
       --n_clusters ${hyperparameters.clustering.n_clusters}
+      --seed ${seed}
     deps:
     - delius/deep_embedded_clustering.py
     - ${image_features.embeddings_file}
@@ -79,6 +82,7 @@ stages:
       --output_clustered_samples_file ${clustering.samples_pic_file}
       --n_samples_per_cluster ${clustering.n_samples_per_cluster}
       --embeddings_sample_fraction ${clustering.embeddings_sample_franction}
+      --seed ${seed}
     deps:
     - delius/clusters_visualization.py
     - ${clustering.dec_path}

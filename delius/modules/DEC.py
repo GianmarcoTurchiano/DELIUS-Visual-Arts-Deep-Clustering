@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class ClusteringLayer(nn.Module):
-    def __init__(self, n_clusters=5, input_dim=10, alpha=1.0, weights=None):
+    def __init__(self, n_clusters=10, input_dim=10, alpha=1.0, weights=None):
         super(ClusteringLayer, self).__init__()
         self.n_clusters = n_clusters
         self.alpha = alpha
@@ -28,7 +28,7 @@ class ClusteringLayer(nn.Module):
 
 
 class DEC(nn.Module):
-    def __init__(self, encoder, n_clusters=5, embeddings_dim=10, alpha=1.0):
+    def __init__(self, encoder, n_clusters=10, embeddings_dim=10, alpha=1.0):
         super(DEC, self).__init__()
         self.encoder = encoder
         self.clustering_layer = ClusteringLayer(n_clusters, embeddings_dim, alpha)

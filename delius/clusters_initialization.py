@@ -1,6 +1,7 @@
 import argparse
 from tqdm import tqdm
 
+import random
 import numpy as np
 from sklearn.cluster import KMeans
 import torch
@@ -13,8 +14,9 @@ from delius.modules.embeddings_dataset import EmbeddingsDataset, load_embeddings
 def init_clusters(
     dataset: EmbeddingsDataset,
     model: EmbeddingsEncoder,
-    n_clusters=5,
+    n_clusters=10,
     batch_size=256,
+    seed=42
 ):
     loader = DataLoader(
         dataset,
@@ -39,7 +41,7 @@ def init_clusters(
 
     tqdm.write(f"Clustering bottleneck features into {n_clusters} clusters...")
 
-    kmeans = KMeans(n_clusters=n_clusters, n_init=20)
+    kmeans = KMeans(n_clusters=n_clusters, n_init=20, random_state=seed)
     assignments = kmeans.fit_predict(bottlenecks)
 
     centroids = torch.from_numpy(kmeans.cluster_centers_).float() 
@@ -59,6 +61,7 @@ if __name__ == '__main__':
     parser.add_argument('--encoder_hidden_dimensions', type=int, nargs='+')
     parser.add_argument('--batch', type=int)
     parser.add_argument('--n_clusters', type=int)
+    parser.add_argument('--seed', type=int)
 
     args = parser.parse_args()
 
@@ -78,7 +81,8 @@ if __name__ == '__main__':
         dataset,
         model,
         args.n_clusters,
-        args.batch
+        args.batch,
+        args.seed
     )
 
     tqdm.write(f"Saving centroids to '{args.output_centroids_file}'...")

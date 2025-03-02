@@ -51,11 +51,12 @@ def compute_embeddings_and_assignments(
 
 def plot_2D_clusters(
     embeddings: np.ndarray,
-    cluster_assignments: np.ndarray
+    cluster_assignments: np.ndarray,
+    seed=42
 ):
     tqdm.write('Applying TSNE...')
 
-    tsne = TSNE(n_components=2, random_state=27)
+    tsne = TSNE(n_components=2, random_state=seed)
     tsne_embedding = tsne.fit_transform(embeddings)
 
     # Create figure and plot
@@ -71,12 +72,13 @@ def sample_clustered_embeddings(
     embeddings: np.ndarray,
     assignments: np.ndarray,
     embeddings_sample_fraction=0.1,
+    seed=42
 ):
     tqdm.write(f'Sampling {embeddings_sample_fraction * 100}% of the embeddings...')
 
     num_samples = int(len(embeddings) * embeddings_sample_fraction)
 
-    rng = np.random.default_rng(seed=27)
+    rng = np.random.default_rng(seed=seed)
     indices = rng.choice(len(embeddings), num_samples, replace=False)
 
     sampled_embeddings = embeddings[indices]
@@ -155,6 +157,7 @@ if __name__ == '__main__':
     parser.add_argument('--output_clustered_samples_file', type=str)
     parser.add_argument('--n_samples_per_cluster', type=int)
     parser.add_argument('--embeddings_sample_fraction', type=float)
+    parser.add_argument('--seed', type=int)
 
     args = parser.parse_args()
 
@@ -189,12 +192,14 @@ if __name__ == '__main__':
         names,
         embeddings,
         assignments,
-        args.embeddings_sample_fraction
+        args.embeddings_sample_fraction,
+        args.seed
     )
 
     fig = plot_2D_clusters(
         sampled_embeddings,
-        sampled_assignments
+        sampled_assignments,
+        args.seed
     )
 
     tqdm.write(f"Saving image to '{args.output_tsne_pic_file}'...")

@@ -23,7 +23,7 @@ stages:
     cmd: python -m delius.encoder_pretraining --learning_rate 0.001 --epochs 200 --batch
       256 --encoder_hidden_dimensions 500 500 2000 10 --input_embeddings_dimensions
       1024 --input_embeddings_file ./data/processed/embeddings.pth --output_encoder_file
-      ./models/pretrained/encoder.pth
+      ./models/pretrained/encoder.pth --seed 42
     deps:
     - path: ./data/processed/embeddings.pth
       hash: md5
@@ -31,19 +31,19 @@ stages:
       size: 493539845
     - path: delius/encoder_pretraining.py
       hash: md5
-      md5: 0e100a133375e9d7be449a47f9d685e2
-      size: 2544
+      md5: feee8c8cdd89450610dd857bd623b467
+      size: 2851
     outs:
     - path: ./models/pretrained/encoder.pth
       hash: md5
-      md5: 5f7425ed7ea3ecd9e136a2e6bbf63bd2
+      md5: 9e24a48055586955de72469b382b1964
       size: 7143040
   clusters_initialization:
     cmd: python -m delius.clusters_initialization --batch 256 --encoder_hidden_dimensions
       500 500 2000 10 --input_embeddings_dimensions 1024 --input_embeddings_file ./data/processed/embeddings.pth
       --input_pretrained_encoder_file ./models/pretrained/encoder.pth --output_centroids_file
       ./models/kmeans/centroids.pth --output_assignments_file ./models/kmeans/assignments.pth
-      --n_clusters 10
+      --n_clusters 10 --seed 42
     deps:
     - path: ./data/processed/embeddings.pth
       hash: md5
@@ -51,20 +51,20 @@ stages:
       size: 493539845
     - path: ./models/pretrained/encoder.pth
       hash: md5
-      md5: 5f7425ed7ea3ecd9e136a2e6bbf63bd2
+      md5: 9e24a48055586955de72469b382b1964
       size: 7143040
     - path: delius/clusters_initialization.py
       hash: md5
-      md5: 11c83c4759c3f86be553c7d76e1d45c1
-      size: 2726
+      md5: 68b4c30e4cb9f56ddcc92c032ceea3a6
+      size: 2835
     outs:
     - path: ./models/kmeans/assignments.pth
       hash: md5
-      md5: f0a03d626a05d05cdc0a89665612b96a
+      md5: 7bf12cb34c7cfed4cdaad44e7730cc21
       size: 932976
     - path: ./models/kmeans/centroids.pth
       hash: md5
-      md5: 673f515dd5576c34702444db482d849c
+      md5: 19a9498242ffd463ff8b8c886a389af4
       size: 1574
   deep_embedded_clustering:
     cmd: python -m delius.deep_embedded_clustering --batch 256 --encoder_hidden_dimensions
@@ -72,7 +72,7 @@ stages:
       --input_pretrained_encoder_file ./models/pretrained/encoder.pth --input_centroids_file
       ./models/kmeans/centroids.pth --input_assignments_file ./models/kmeans/assignments.pth
       --learning_rate 0.001 --steps 8000 --update_interval 140 --delta_tol 0.001 --output_dec_file
-      ./models/dec/dec.pth --n_clusters 10
+      ./models/dec/dec.pth --n_clusters 10 --seed 42
     deps:
     - path: ./data/processed/embeddings.pth
       hash: md5
@@ -80,24 +80,24 @@ stages:
       size: 493539845
     - path: ./models/kmeans/assignments.pth
       hash: md5
-      md5: f0a03d626a05d05cdc0a89665612b96a
+      md5: 7bf12cb34c7cfed4cdaad44e7730cc21
       size: 932976
     - path: ./models/kmeans/centroids.pth
       hash: md5
-      md5: 673f515dd5576c34702444db482d849c
+      md5: 19a9498242ffd463ff8b8c886a389af4
       size: 1574
     - path: ./models/pretrained/encoder.pth
       hash: md5
-      md5: 5f7425ed7ea3ecd9e136a2e6bbf63bd2
+      md5: 9e24a48055586955de72469b382b1964
       size: 7143040
     - path: delius/deep_embedded_clustering.py
       hash: md5
-      md5: f4245ebb9ddb27da494d4d7abe82db5b
-      size: 5504
+      md5: e5ce4e16074d2d93faea052f6c59ca3e
+      size: 5797
     outs:
     - path: ./models/dec/dec.pth
       hash: md5
-      md5: 963b5faa7c63367c1b030d81b34abe3c
+      md5: ed222953f9734ec0661460b4bc368f3d
       size: 7143816
   clusters_visualization:
     cmd: python -m delius.clusters_visualization --batch 256 --input_embeddings_file
@@ -105,7 +105,7 @@ stages:
       ./models/clustering_pics/clusters.png --input_embeddings_dimensions 1024 --encoder_hidden_dimensions
       500 500 2000 10 --n_clusters 10 --input_image_dir ./data/interim/images/ --output_clustered_samples_file
       ./models/clustering_pics/samples.png --n_samples_per_cluster 5 --embeddings_sample_fraction
-      0.1
+      0.1 --seed 42
     deps:
     - path: ./data/processed/embeddings.pth
       hash: md5
@@ -113,18 +113,18 @@ stages:
       size: 493539845
     - path: ./models/dec/dec.pth
       hash: md5
-      md5: 963b5faa7c63367c1b030d81b34abe3c
+      md5: ed222953f9734ec0661460b4bc368f3d
       size: 7143816
     - path: delius/clusters_visualization.py
       hash: md5
-      md5: a4c5575094abc98c80a07bc1301b9680
-      size: 6654
+      md5: 5e43ad9b387c1b78e45b4fb27fb9ef7d
+      size: 6765
     outs:
     - path: ./models/clustering_pics/clusters.png
       hash: md5
-      md5: b97c1d8981067cc5ed8a65fdde6c5da4
-      size: 163030
+      md5: 7f2a9f9a761d0b7072f5ffa29bd06626
+      size: 146767
     - path: ./models/clustering_pics/samples.png
       hash: md5
-      md5: c024d9659746db42eb586d85e2171eec
-      size: 1003713
+      md5: 4b6f507ac1cf5f285647d00f80d3fd5d
+      size: 950667
