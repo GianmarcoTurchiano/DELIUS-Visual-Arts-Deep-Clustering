@@ -1,5 +1,5 @@
 import torch.nn as nn
-from delius.modules.features_encoder import FeaturesEncoder
+from delius.clustering.modules.features_encoder import FeaturesEncoder
 
 
 class FeaturesAutoencoder(nn.Module):
