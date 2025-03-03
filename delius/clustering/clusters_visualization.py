@@ -1,4 +1,4 @@
-from tqdm import tqdm
+from tqdm.autonotebook import tqdm
 import os
 from PIL import ImageDraw, ImageFont, Image
 

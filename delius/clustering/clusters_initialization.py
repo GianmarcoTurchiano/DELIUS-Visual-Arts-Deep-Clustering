@@ -1,4 +1,4 @@
-from tqdm import tqdm
+from tqdm.autonotebook import tqdm
 
 import numpy as np
 from sklearn.cluster import KMeans

@@ -6,7 +6,7 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
-from tqdm import tqdm
+from tqdm.autonotebook import tqdm
 
 
 class PicsDataset(Dataset):

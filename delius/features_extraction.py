@@ -2,7 +2,7 @@ import argparse
 import tarfile
 
 import torch
-from tqdm import tqdm
+from tqdm.autonotebook import tqdm
 
 from delius.clustering.modules.features_extractor import DenseNetFeaturesExtractor
 from delius.clustering.features_extraction import extract_features
