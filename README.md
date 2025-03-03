@@ -44,4 +44,4 @@ centroids, assignments = initialize_clusters(dataset, encoder)
 dec = fit_dec(encoder, dataset, centroids, assignments)
 ```
 
-A Python notebook which also shows how to display the results can be found [here](notebooks/example.ipynb).
+A Python notebook which also shows how to display the results can be found [here](notebooks/example.ipynb). You can run it on Kaggle onto the CIFAR-10 dataset [here](https://www.kaggle.com/code/gianmarcoturchiano/delius-visual-arts-deep-clustering).
