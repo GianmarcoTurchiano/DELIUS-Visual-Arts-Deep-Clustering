@@ -16,8 +16,6 @@ if __name__ == '__main__':
     parser.add_argument('--input_pretrained_encoder_file', type=str)
     parser.add_argument('--input_embeddings_file', type=str)
     parser.add_argument('--output_dec_file', type=str)
-    parser.add_argument('--input_embeddings_dimensions', type=int)
-    parser.add_argument('--encoder_hidden_dimensions', type=int, nargs='+')
     parser.add_argument('--batch', type=int)
     parser.add_argument('--steps', type=int)
     parser.add_argument('--learning_rate', type=float)
@@ -41,11 +39,7 @@ if __name__ == '__main__':
 
     tqdm.write(f"Loading encoder from '{args.input_pretrained_encoder_file}'...")
 
-    encoder = load_features_encoder(
-        args.input_pretrained_encoder_file,
-        args.input_embeddings_dimensions,
-        args.encoder_hidden_dimensions
-    )
+    encoder = load_features_encoder(args.input_pretrained_encoder_file)
 
     model = fit_dec(
         encoder,

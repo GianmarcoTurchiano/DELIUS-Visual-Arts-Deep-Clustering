@@ -1,11 +1,7 @@
 import torch
 from torch import nn
 
-
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
+from delius.clustering.modules.features_encoder import FeaturesEncoder
 
 class ClusteringLayer(nn.Module):
     def __init__(self, n_clusters=10, input_dim=10, alpha=1.0, weights=None):
@@ -44,3 +40,42 @@ def target_distribution(q):
     weight = q ** 2 / torch.sum(q, dim=0)
     p = (weight.t() / torch.sum(weight, dim=1)).t()
     return p
+
+
+def infer_dec_dimensions(state_dict):
+    input_dim = None
+    encoder_dims = []
+    clustering_shape = None
+
+    for key, value in state_dict.items():
+        if "encoder" in key and "weight" in key:
+            out_dim, in_dim = value.shape
+            if input_dim is None:
+                input_dim = in_dim
+            encoder_dims.append(out_dim)
+
+        if "clustering_layer.clusters" in key:
+            clustering_shape = value.shape
+
+    return input_dim, encoder_dims, clustering_shape
+
+
+def load_dec(input_dec_file):
+    weights = torch.load(input_dec_file, weights_only=True)
+
+    input_dims, encoder_hidden_dims, [n_clusters, embeddings_dims] = infer_dec_dimensions(weights)
+
+    encoder = FeaturesEncoder(
+        input_dims,
+        encoder_hidden_dims
+    )
+
+    model = DEC(
+        encoder,
+        n_clusters,
+        embeddings_dims
+    )
+
+    model.load_state_dict(weights)
+
+    return model

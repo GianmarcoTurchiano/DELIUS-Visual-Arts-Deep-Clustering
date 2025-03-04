@@ -29,8 +29,6 @@ stages:
   clusters_initialization:
     cmd: ${python_interpreter_cmd} -m delius.clusters_initialization
       --batch ${image_features.extraction.batch_size}
-      --encoder_hidden_dimensions ${encoder.hidden_dimensions}
-      --input_embeddings_dimensions ${image_features.dimensions}
       --input_embeddings_file ${image_features.embeddings_file}
       --input_pretrained_encoder_file ${encoder.pretrained_path}
       --output_centroids_file ${clustering.centroids_path}
@@ -47,8 +45,6 @@ stages:
   dec_fitting:
     cmd: ${python_interpreter_cmd} -m delius.dec_fitting
       --batch ${hyperparameters.clustering.batch_size}
-      --encoder_hidden_dimensions ${encoder.hidden_dimensions}
-      --input_embeddings_dimensions ${image_features.dimensions}
       --input_embeddings_file ${image_features.embeddings_file}
       --input_pretrained_encoder_file ${encoder.pretrained_path}
       --input_centroids_file ${clustering.centroids_path}
@@ -73,9 +69,6 @@ stages:
       --input_embeddings_file ${image_features.embeddings_file}
       --input_dec_file ${clustering.dec_path}
       --output_tsne_pic_file ${clustering.tsne_pic_file}
-      --input_embeddings_dimensions ${image_features.dimensions}
-      --encoder_hidden_dimensions ${encoder.hidden_dimensions}
-      --n_clusters ${hyperparameters.clustering.n_clusters}
       --input_image_dir ${images.uncompressed_image_dir}
       --output_clustered_samples_file ${clustering.samples_pic_file}
       --n_samples_per_cluster ${clustering.n_samples_per_cluster}

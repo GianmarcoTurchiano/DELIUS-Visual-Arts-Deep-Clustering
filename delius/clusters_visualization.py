@@ -5,7 +5,7 @@ import torch
 import matplotlib.pyplot as plt
 
 from delius.clustering.modules.features_dataset import load_features_dataset
-from delius.clustering.modules.deep_embedded_clustering import DEC
+from delius.clustering.modules.deep_embedded_clustering import DEC, load_dec
 from delius.clustering.modules.features_encoder import FeaturesEncoder
 from delius.clustering.clusters_visualization import (
     compute_embeddings_and_assignments,
@@ -23,9 +23,6 @@ if __name__ == '__main__':
     parser.add_argument('--input_embeddings_file', type=str)
     parser.add_argument('--output_tsne_pic_file', type=str)
     parser.add_argument('--batch', type=int)
-    parser.add_argument('--input_embeddings_dimensions', type=int)
-    parser.add_argument('--encoder_hidden_dimensions', type=int, nargs='+')
-    parser.add_argument('--n_clusters', type=int)
     parser.add_argument('--input_image_dir', type=str)
     parser.add_argument('--output_clustered_samples_file', type=str)
     parser.add_argument('--n_samples_per_cluster', type=int)
@@ -40,20 +37,7 @@ if __name__ == '__main__':
 
     tqdm.write(f"Loading DEC from '{args.input_dec_file}'...")
 
-    weights = torch.load(args.input_dec_file, weights_only=True)
-
-    encoder = FeaturesEncoder(
-        args.input_embeddings_dimensions,
-        args.encoder_hidden_dimensions
-    )
-
-    model = DEC(
-        encoder,
-        args.n_clusters,
-        args.encoder_hidden_dimensions[-1]
-    )
-
-    model.load_state_dict(weights)
+    model = load_dec(args.input_dec_file)
 
     names, embeddings, assignments = compute_embeddings_and_assignments(
         model,

@@ -25,17 +25,33 @@ class FeaturesEncoder(nn.Module):
         return self.encoder(x)
 
 
+def infer_encoder_dimensions(state_dict):
+    hidden_dims = []
+    input_dim = None
+
+    for key in state_dict:
+        if "weight" in key:
+            out_dim, in_dim = state_dict[key].shape
+            
+            if input_dim is None:
+                input_dim = in_dim
+            
+            hidden_dims.append(out_dim)
+
+    return input_dim, hidden_dims
+
+
 def load_features_encoder(
     file_path: str,
-    input_embeddings_dimensions=1024,
-    hidden_dims: list[int]=[500, 500, 2000, 10],
 ):
+    weights = torch.load(file_path, weights_only=True)
+
+    input_dims, hidden_dims = infer_encoder_dimensions(weights)
+
     model = FeaturesEncoder(
-        input_embeddings_dimensions,
+        input_dims,
         hidden_dims
     )
-
-    weights = torch.load(file_path, weights_only=True)
 
     model.load_state_dict(weights)
 

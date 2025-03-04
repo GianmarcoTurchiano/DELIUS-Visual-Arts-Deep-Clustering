@@ -15,8 +15,6 @@ if __name__ == '__main__':
     parser.add_argument('--input_pretrained_encoder_file', type=str)
     parser.add_argument('--output_centroids_file', type=str)
     parser.add_argument('--output_assignments_file', type=str)
-    parser.add_argument('--input_embeddings_dimensions', type=int)
-    parser.add_argument('--encoder_hidden_dimensions', type=int, nargs='+')
     parser.add_argument('--batch', type=int)
     parser.add_argument('--n_clusters', type=int)
     parser.add_argument('--seed', type=int)
@@ -29,11 +27,7 @@ if __name__ == '__main__':
 
     tqdm.write(f"Loading encoder from '{args.input_pretrained_encoder_file}'...")
 
-    model = load_features_encoder(
-        args.input_pretrained_encoder_file,
-        args.input_embeddings_dimensions,
-        args.encoder_hidden_dimensions
-    )
+    model = load_features_encoder(args.input_pretrained_encoder_file)
 
     centroids, assignments = initialize_clusters(
         dataset,
