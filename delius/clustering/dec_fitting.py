@@ -18,13 +18,11 @@ def fit_dec(
     dataset: FeaturesDataset,
     centroids: torch.Tensor,
     assignments: torch.Tensor,
-    bottleneck_dimensions=10,
     batch_size=256,
     learning_rate=1e-3,
     steps=8000,
     update_interval=140,
     delta_tol=0.001,
-    n_clusters=10,
     seed=42
 ):
     random.seed(seed)
@@ -45,6 +43,8 @@ def fit_dec(
         batch_size=batch_size,
         shuffle=False
     )
+
+    n_clusters, bottleneck_dimensions = centroids.shape
 
     model = DEC(
         encoder,

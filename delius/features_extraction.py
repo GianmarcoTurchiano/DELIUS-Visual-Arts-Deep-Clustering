@@ -1,11 +1,11 @@
 import argparse
 import tarfile
 
-import torch
 from tqdm.autonotebook import tqdm
 
 from delius.clustering.modules.features_extractor import DenseNetFeaturesExtractor
 from delius.clustering.features_extraction import extract_features
+from delius.clustering.modules.features_dataset import save_features_dataset
 
 
 if __name__ == '__main__':
@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     extractor = DenseNetFeaturesExtractor()
 
-    embeddings = extract_features(
+    names, features = extract_features(
         extractor,
         output_uncompressed_image_dir,
         image_width,
@@ -46,4 +46,4 @@ if __name__ == '__main__':
 
     tqdm.write(f"Saving embeddings to file '{output_embedding_file}'...")
 
-    torch.save(embeddings, output_embedding_file)
+    save_features_dataset(names, features, output_embedding_file)

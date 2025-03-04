@@ -90,9 +90,10 @@ def sample_n_files_per_cluster(
     names: list[str],
     assignments: np.ndarray,
     image_dir_path: np.ndarray,
-    n_clusters=10,
     n_samples_per_cluster=5,
 ):
+    (n_clusters,) = np.unique(assignments).shape
+
     tqdm.write(f"Sampling {n_samples_per_cluster} pictures for each of the {n_clusters} clusters...")
     
     cluster_images = {i: [] for i in range(n_clusters)}

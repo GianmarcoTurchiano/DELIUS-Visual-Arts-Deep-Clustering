@@ -23,7 +23,6 @@ if __name__ == '__main__':
     parser.add_argument('--learning_rate', type=float)
     parser.add_argument('--update_interval', type=int)
     parser.add_argument('--delta_tol', type=float)
-    parser.add_argument('--n_clusters', type=int)
     parser.add_argument('--seed', type=int)
 
     args = parser.parse_args()
@@ -53,13 +52,11 @@ if __name__ == '__main__':
         dataset,
         centroids,
         assignments,
-        args.encoder_hidden_dimensions[-1],
         args.batch,
         args.learning_rate,
         args.steps,
         args.update_interval,
         args.delta_tol,
-        args.n_clusters,
         args.seed
     )
 

@@ -84,7 +84,6 @@ if __name__ == '__main__':
         sampled_names,
         sampled_assignments,
         args.input_image_dir,
-        args.n_clusters,
         args.n_samples_per_cluster
     )
 

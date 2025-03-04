@@ -37,8 +37,8 @@ from delius.clustering.clusters_initialization import initialize_clusters
 from delius.clustering.dec_fitting import fit_dec
 
 extractor = DenseNetFeaturesExtractor()
-features = extract_features(extractor, pics_dir_path)
-dataset = FeaturesDataset(features)
+names, features = extract_features(extractor, pics_dir_path)
+dataset = FeaturesDataset(names, features)
 encoder = pretrain_encoder(dataset)
 centroids, assignments = initialize_clusters(dataset, encoder)
 dec = fit_dec(encoder, dataset, centroids, assignments)

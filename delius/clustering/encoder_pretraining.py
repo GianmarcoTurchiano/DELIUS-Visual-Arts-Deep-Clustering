@@ -14,7 +14,6 @@ from delius.clustering.modules.features_autoencoder import FeaturesAutoencoder
 
 def pretrain_encoder(
     dataset: FeaturesDataset,
-    input_embeddings_dimensions=1024,
     encoder_hidden_dimensions: list[int]=[500, 500, 2000, 10],
     batch_size=256,
     epochs=200,
@@ -37,7 +36,7 @@ def pretrain_encoder(
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     model = FeaturesAutoencoder(
-        input_embeddings_dimensions,
+        dataset.features_dims,
         encoder_hidden_dimensions
     ).to(device)
 

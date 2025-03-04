@@ -18,7 +18,6 @@ stages:
       --epochs ${hyperparameters.pretraining.num_epochs}
       --batch ${hyperparameters.pretraining.batch_size}
       --encoder_hidden_dimensions ${encoder.hidden_dimensions}
-      --input_embeddings_dimensions ${image_features.dimensions}
       --input_embeddings_file ${image_features.embeddings_file}
       --output_encoder_file ${encoder.pretrained_path}
       --seed ${seed}
@@ -59,7 +58,6 @@ stages:
       --update_interval ${hyperparameters.clustering.update_interval}
       --delta_tol ${hyperparameters.clustering.delta_tol}
       --output_dec_file ${clustering.dec_path}
-      --n_clusters ${hyperparameters.clustering.n_clusters}
       --seed ${seed}
     deps:
     - delius/dec_fitting.py

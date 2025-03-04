@@ -85,4 +85,6 @@ def extract_features(
             embedding = extractor(images)
             embeddings.extend(embedding)
 
-    return dict(zip(names, embeddings))
+    embeddings = torch.stack(embeddings)
+
+    return names, embeddings

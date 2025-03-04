@@ -12,7 +12,6 @@ if __name__ == '__main__':
 
     parser.add_argument('--input_embeddings_file', type=str)
     parser.add_argument('--output_encoder_file', type=str)
-    parser.add_argument('--input_embeddings_dimensions', type=int)
     parser.add_argument('--encoder_hidden_dimensions', type=int, nargs='+')
     parser.add_argument('--batch', type=int)
     parser.add_argument('--epochs', type=int)
@@ -26,7 +25,6 @@ if __name__ == '__main__':
 
     model = pretrain_encoder(
         dataset,
-        args.input_embeddings_dimensions,
         args.encoder_hidden_dimensions,
         args.batch,
         args.epochs,

@@ -5,7 +5,7 @@ from delius.clustering.modules.features_encoder import FeaturesEncoder
 class FeaturesAutoencoder(nn.Module):
     def __init__(
         self,
-        input_embeddings_dimension=1024,
+        input_embeddings_dimension,
         hidden_dims=[500, 500, 2000, 10]
     ):
         super(FeaturesAutoencoder, self).__init__()

@@ -5,7 +5,7 @@ import torch
 class FeaturesEncoder(nn.Module):
     def __init__(
         self,
-        input_embeddings_dimensions=1024,
+        input_embeddings_dimensions,
         hidden_dims: list[int]=[500, 500, 2000, 10]
     ):
         super(FeaturesEncoder, self).__init__()

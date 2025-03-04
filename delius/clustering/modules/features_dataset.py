@@ -5,10 +5,12 @@ from torch.utils.data import Dataset
 class FeaturesDataset(Dataset):
     def __init__(
         self,
-        embeddings: dict
+        names: list[str],
+        embeddings: torch.Tensor
     ):
-        self.names = list(embeddings.keys())
-        self.embeddings = list(embeddings.values())
+        self.names = names
+        self.embeddings = embeddings
+        _, self.features_dims = self.embeddings.shape
 
     def __len__(self):
         return len(self.names)
@@ -20,9 +22,19 @@ class FeaturesDataset(Dataset):
         return idx, names, embeddings
 
 
+def save_features_dataset(names: list[str], features: torch.Tensor, output_embedding_file: str):
+    embeddings = dict(zip(names, features))
+
+    torch.save(embeddings, output_embedding_file)
+
+
 def load_features_dataset(file_path: str):
     data = torch.load(file_path, weights_only=True)
 
-    dataset = FeaturesDataset(data)
+    names = list(data.keys())
+    embeddings = list(data.values())
+    embeddings = torch.stack(embeddings)
+
+    dataset = FeaturesDataset(names, embeddings)
 
     return dataset
