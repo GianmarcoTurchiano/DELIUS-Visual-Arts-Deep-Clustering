@@ -1,4 +1,3 @@
-import argparse
 from tqdm.autonotebook import tqdm
 
 import numpy as np

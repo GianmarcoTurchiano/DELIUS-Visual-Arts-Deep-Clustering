@@ -1,7 +1,12 @@
+from tqdm.autonotebook import tqdm
+import numpy as np
 import torch
 from torch import nn
+from torch.utils.data import DataLoader
 
 from delius.clustering.modules.features_encoder import FeaturesEncoder
+from delius.clustering.modules.features_dataset import FeaturesDataset
+from delius.clustering.modules.deep_embedded_clustering import DEC
 
 class ClusteringLayer(nn.Module):
     def __init__(self, n_clusters=10, input_dim=10, alpha=1.0, weights=None):
@@ -79,3 +84,38 @@ def load_dec(input_dec_file):
     model.load_state_dict(weights)
 
     return model
+
+
+def compute_embeddings_and_assignments(
+    model: DEC,
+    dataset: FeaturesDataset,
+    batch_size=256
+):
+    loader = DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=False
+    )
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    model = model.to(device)
+
+    model.eval()
+    embeddings = []
+    cluster_assignments = []
+    names_all = []
+
+    with torch.no_grad():
+        for _, names, features in  tqdm(loader, desc='Computing embeddings and cluster assignments'):
+            features = features.to(device)
+            z, q = model(features)
+            cluster_ids = torch.argmax(q, dim=1).cpu().numpy()
+            embeddings.append(z.cpu().numpy())
+            cluster_assignments.append(cluster_ids)
+            names_all.extend(names)
+ 
+    embeddings = np.concatenate(embeddings, axis=0)
+    cluster_assignments = np.concatenate(cluster_assignments, axis=0)
+
+    return names_all, embeddings, cluster_assignments

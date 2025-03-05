@@ -1,14 +1,14 @@
 import argparse
 from tqdm.autonotebook import tqdm
 
-import torch
 import matplotlib.pyplot as plt
 
 from delius.clustering.modules.features_dataset import load_features_dataset
-from delius.clustering.modules.deep_embedded_clustering import DEC, load_dec
-from delius.clustering.modules.features_encoder import FeaturesEncoder
+from delius.clustering.modules.deep_embedded_clustering import (
+    load_dec,
+    compute_embeddings_and_assignments
+)
 from delius.clustering.clusters_visualization import (
-    compute_embeddings_and_assignments,
     sample_clustered_embeddings,
     plot_2D_clusters,
     sample_n_files_per_cluster,
