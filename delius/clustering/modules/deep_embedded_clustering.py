@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 
 from delius.clustering.modules.features_encoder import FeaturesEncoder
 from delius.clustering.modules.features_dataset import FeaturesDataset
-from delius.clustering.modules.deep_embedded_clustering import DEC
+
 
 class ClusteringLayer(nn.Module):
     def __init__(self, n_clusters=10, input_dim=10, alpha=1.0, weights=None):
