@@ -21,7 +21,6 @@ pip_install:
 .PHONY: create_env
 create_env:
 	$(PYTHON_INTERPRETER) -m venv $(VENV_NAME)
-	make pip_install
 
 #################################################################################
 # Self Documenting Commands                                                     #

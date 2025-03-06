@@ -27,8 +27,9 @@ requires-python = "~=3.10"
 
 [project.optional-dependencies]
 dev = [
-  "dvc",
-  "dvc-s3"
+  "dvc==3.59.1",
+  "dvc-s3==3.2.0",
+  "mlflow==2.20.3",
 ]
 
 [tool.black]
