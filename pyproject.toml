@@ -30,6 +30,7 @@ dev = [
   "dvc==3.59.1",
   "dvc-s3==3.2.0",
   "mlflow==2.20.3",
+  "python-dotenv==1.0.1"
 ]
 
 [tool.black]

@@ -1,4 +1,5 @@
 from tqdm.autonotebook import tqdm
+from typing import Callable
 
 import numpy as np
 import random
@@ -17,7 +18,8 @@ def pretrain_encoder(
     batch_size=256,
     epochs=200,
     learning_rate=1e-3,
-    seed=42
+    seed=42,
+    log_epoch_loss_fn: Callable[[int, float], None] = None
 ):
     random.seed(seed)
     np.random.seed(seed)
@@ -45,22 +47,26 @@ def pretrain_encoder(
 
     mse_loss = nn.MSELoss()
 
-    for epoch in tqdm(range(epochs), desc='Epochs'):
+    for epoch in tqdm(range(1, epochs), desc='Epochs'):
         total_loss = 0.0
-        
+
         for _, _, features in tqdm(loader, desc='Batches', leave=False):
             features = features.to(device)
             optimizer.zero_grad()
-            
+
             _, reconstrutions = model(features)
-            
+
             loss = mse_loss(reconstrutions, features)
             loss.backward()
-            
+
             optimizer.step()
-            
+
             total_loss += loss.item() * features.size(0)
-        
-        tqdm.write(f"Epoch {epoch+1}/{epochs}, Loss: {total_loss/len(loader.dataset):.4f}")
+
+        avg_loss = total_loss / len(loader.dataset)
+        tqdm.write(f"Epoch {epoch}/{epochs}, Loss: {avg_loss:.4f}")
+
+        if log_epoch_loss_fn != None:
+            log_epoch_loss_fn(epoch, avg_loss)
 
     return model.encoder
