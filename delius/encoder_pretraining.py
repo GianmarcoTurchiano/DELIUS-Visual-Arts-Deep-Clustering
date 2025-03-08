@@ -44,6 +44,7 @@ if __name__ == '__main__':
         mlflow.log_param('learning rate', args.learning_rate)
         mlflow.log_param('epochs', args.epochs)
         mlflow.log_param('seed', args.seed)
+        mlflow.log_param("hidden_dims", str(args.encoder_hidden_dimensions))
 
         model = pretrain_encoder(
             dataset,
@@ -52,7 +53,7 @@ if __name__ == '__main__':
             args.epochs,
             args.learning_rate,
             args.seed,
-            lambda epoch, loss: mlflow.log_metric('MSE Loss', loss, epoch)
+            lambda epoch, loss: mlflow.log_metric('MSE loss', loss, epoch)
         )
 
     tqdm.write(f"Saving encoder to '{args.output_encoder_file}'...")

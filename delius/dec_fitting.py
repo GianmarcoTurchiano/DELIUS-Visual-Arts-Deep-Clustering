@@ -82,8 +82,9 @@ if __name__ == '__main__':
             args.update_interval,
             args.delta_tol,
             args.seed,
-            lambda step, loss: mlflow.log_metric('Delta label', loss, step),
-            lambda step, loss: mlflow.log_metric('KL Loss', loss, step)
+            lambda step, loss: mlflow.log_metric('delta label', loss, step),
+            lambda step, loss: mlflow.log_metric('KL loss', loss, step),
+            lambda n_clusters: mlflow.log_param('clusters count', n_clusters)
         )
 
     directory = os.path.dirname(args.output_dec_file)

@@ -25,7 +25,8 @@ def fit_dec(
     delta_tol=0.001,
     seed=42,
     log_delta_label_fn: Callable[[int, float], None] = None,
-    log_update_interval_loss_fn: Callable[[int, float], None] = None
+    log_update_interval_loss_fn: Callable[[int, float], None] = None,
+    log_n_clusters_fn: Callable[[int], None] = None
 ):
     random.seed(seed)
     np.random.seed(seed)
@@ -47,6 +48,9 @@ def fit_dec(
     )
 
     n_clusters, bottleneck_dimensions = centroids.shape
+
+    if log_n_clusters_fn != None:
+        log_n_clusters_fn(n_clusters)
 
     model = DEC(
         encoder,
