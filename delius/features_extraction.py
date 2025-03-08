@@ -1,5 +1,6 @@
 import argparse
 import tarfile
+import os
 
 from tqdm.autonotebook import tqdm
 
@@ -32,9 +33,13 @@ if __name__ == '__main__':
     with tarfile.open(input_compressed_image_dir, "r:gz") as tar:
         tar.extractall(output_uncompressed_image_dir)
 
+    tqdm.write(f"Done.")
+
     tqdm.write(f'Loading model...')
 
     extractor = DenseNetFeaturesExtractor()
+
+    tqdm.write(f"Done.")
 
     names, features = extract_features(
         extractor,
@@ -44,6 +49,14 @@ if __name__ == '__main__':
         batch_size
     )
 
+    directory = os.path.dirname(output_embedding_file)
+
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+        tqdm.write(f"Created directory '{directory}'.")
+
     tqdm.write(f"Saving embeddings to file '{output_embedding_file}'...")
 
     save_features_dataset(names, features, output_embedding_file)
+
+    tqdm.write(f"Done.")

@@ -47,7 +47,7 @@ def pretrain_encoder(
 
     mse_loss = nn.MSELoss()
 
-    for epoch in tqdm(range(1, epochs), desc='Epochs'):
+    for epoch in tqdm(range(1, epochs + 1), desc='Epochs'):
         total_loss = 0.0
 
         for _, _, features in tqdm(loader, desc='Batches', leave=False):

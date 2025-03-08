@@ -1,5 +1,6 @@
 import argparse
 from tqdm.autonotebook import tqdm
+import os
 
 import torch
 
@@ -25,9 +26,13 @@ if __name__ == '__main__':
 
     dataset = load_features_dataset(args.input_embeddings_file)
 
+    tqdm.write(f"Done.")
+
     tqdm.write(f"Loading encoder from '{args.input_pretrained_encoder_file}'...")
 
     model = load_features_encoder(args.input_pretrained_encoder_file)
+
+    tqdm.write(f"Done.")
 
     centroids, assignments = initialize_clusters(
         dataset,
@@ -37,8 +42,22 @@ if __name__ == '__main__':
         args.seed
     )
 
+    directory = os.path.dirname(args.output_centroids_file)
+
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+        tqdm.write(f"Created directory '{directory}'.")
+
+    directory = os.path.dirname(args.output_assignments_file)
+
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+        tqdm.write(f"Created directory '{directory}'.")
+
     tqdm.write(f"Saving centroids to '{args.output_centroids_file}'...")
     torch.save(centroids, args.output_centroids_file)
+    tqdm.write(f"Done.")
 
     tqdm.write(f"Saving cluster assignments to '{args.output_assignments_file}'...")
     torch.save(assignments, args.output_assignments_file)
+    tqdm.write(f"Done.")

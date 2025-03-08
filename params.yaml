@@ -39,3 +39,10 @@ clustering:
   samples_pic_file: ./models/clustering_pics/samples.png
   n_samples_per_cluster: 5
   embeddings_sample_franction: 0.1
+
+env_file_path: '.env'
+env_var_name:
+  mlflow:
+    runs:
+      encoder_pretraining: ENCODER_PRETRAINING_MLFLOW_RUN_ID
+      dec_fitting: DEC_FITTING_MLFLOW_RUN_ID

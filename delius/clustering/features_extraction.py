@@ -68,6 +68,8 @@ def extract_features(
         shuffle=False
     )
 
+    tqdm.write("Done.")
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     extractor = extractor.to(device)

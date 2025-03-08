@@ -21,6 +21,8 @@ stages:
       --input_embeddings_file ${image_features.embeddings_file}
       --output_encoder_file ${encoder.pretrained_path}
       --seed ${seed}
+      --env_file_path ${env_file_path}
+      --mlflow_run_id_env_var_name ${env_var_name.mlflow.runs.encoder_pretraining}
     deps:
     - delius/encoder_pretraining.py
     - ${image_features.embeddings_file}
@@ -55,6 +57,9 @@ stages:
       --delta_tol ${hyperparameters.clustering.delta_tol}
       --output_dec_file ${clustering.dec_path}
       --seed ${seed}
+      --env_file_path ${env_file_path}
+      --mlflow_run_id_env_var_name ${env_var_name.mlflow.runs.dec_fitting}
+      --mlflow_parent_run_id_env_var_name ${env_var_name.mlflow.runs.encoder_pretraining}
     deps:
     - delius/dec_fitting.py
     - ${image_features.embeddings_file}

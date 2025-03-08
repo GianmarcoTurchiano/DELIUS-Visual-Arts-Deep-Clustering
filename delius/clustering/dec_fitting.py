@@ -1,4 +1,5 @@
 from tqdm.autonotebook import tqdm
+from typing import Callable
 
 import random
 import numpy as np
@@ -22,7 +23,9 @@ def fit_dec(
     steps=8000,
     update_interval=140,
     delta_tol=0.001,
-    seed=42
+    seed=42,
+    log_delta_label_fn: Callable[[int, float], None] = None,
+    log_update_interval_loss_fn: Callable[[int, float], None] = None
 ):
     random.seed(seed)
     np.random.seed(seed)
@@ -81,23 +84,35 @@ def fit_dec(
                         val_embeddings = val_embeddings.to(device)
                         _, q = model(val_embeddings)
                         q_all.append(q.detach().cpu())
-                
+
                 q_all = torch.cat(q_all, dim=0)
                 p_all = target_distribution(q_all)
 
-                y_pred = torch.argmax(q_all, dim=1).numpy()
+                if step > 0:
+                    y_pred = torch.argmax(q_all, dim=1).numpy()
 
-                delta_label = np.sum(y_pred != y_pred_last).astype(np.float32) / y_pred.shape[0]
-                y_pred_last = y_pred.copy()
-                
-                tqdm.write(f"Step {step}/{steps}, label change: {delta_label:.4f}")
-                
-                if step > 0 and delta_label < delta_tol:
-                    tqdm.write(f'delta_label {delta_label} < tol {delta_tol}')
-                    tqdm.write('Reached tolerance threshold. Stopping training.')
-                    converged = True
-                    break
-            
+                    delta_label = np.sum(y_pred != y_pred_last).astype(np.float32) / y_pred.shape[0]
+                    y_pred_last = y_pred.copy()
+
+                    tqdm.write(f"Step {step}/{steps}, label change: {delta_label:.4f}")
+
+                    if log_delta_label_fn != None:
+                        log_delta_label_fn(step, delta_label)
+
+                    avg_loss = loss_total / update_interval
+                    tqdm.write(f"Step {step}/{steps}, KL Loss: {avg_loss:.4f}")
+
+                    if log_update_interval_loss_fn != None:
+                        log_update_interval_loss_fn(step, avg_loss)
+
+                    loss_total = 0
+
+                    if delta_label < delta_tol:
+                        tqdm.write(f'delta_label {delta_label} < delta_tol {delta_tol}')
+                        tqdm.write('Reached tolerance threshold. Stopping training.')
+                        converged = True
+                        break
+
             model.train()
             train_embeddings = train_embeddings.to(device)
             optimizer.zero_grad()
@@ -108,11 +123,6 @@ def fit_dec(
             loss.backward()
             optimizer.step()
             loss_total += loss.item()
-
-            if step % update_interval == 0:
-                loss_avg = loss_total / update_interval
-                tqdm.write(f"Step {step}/{steps}, KL Loss: {loss_avg:.4f}")
-                loss_total = 0
 
             step += 1
             pbar.update(1)
