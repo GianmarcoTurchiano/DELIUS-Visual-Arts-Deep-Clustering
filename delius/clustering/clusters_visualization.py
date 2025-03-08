@@ -22,6 +22,8 @@ def plot_2D_clusters(
     ax.scatter(tsne_embedding[:, 0], tsne_embedding[:, 1], c=cluster_assignments, cmap='tab10', alpha=0.6)
     ax.set_title("t-SNE Visualization of Clusters")
 
+    tqdm.write("Done.")
+
     return fig
 
 
@@ -42,6 +44,8 @@ def sample_clustered_embeddings(
     sampled_embeddings = embeddings[indices]
     sampled_assignments = assignments[indices]
     sampled_names = [names[i] for i in indices]
+
+    tqdm.write("Done.")
 
     return sampled_names, sampled_embeddings, sampled_assignments
 
@@ -70,6 +74,8 @@ def sample_n_files_per_cluster(
             
             if collected >= total_needed:
                 break
+
+    tqdm.write("Done.")
 
     return cluster_images
 

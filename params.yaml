@@ -35,8 +35,6 @@ clustering:
   centroids_path: ./models/kmeans/centroids.pth
   assignments_path: ./models/kmeans/assignments.pth
   dec_path: ./models/dec/dec.pth
-  tsne_pic_file: ./models/clustering_pics/clusters.png
-  samples_pic_file: ./models/clustering_pics/samples.png
   n_samples_per_cluster: 5
   embeddings_sample_franction: 0.1
 

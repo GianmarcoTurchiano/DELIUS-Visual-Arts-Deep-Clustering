@@ -68,21 +68,18 @@ stages:
     - ${clustering.assignments_path}
     outs:
     - ${clustering.dec_path}
-  clusters_visualization:
-    cmd: ${python_interpreter_cmd} -m delius.clusters_visualization
+  clusters_evaluation:
+    cmd: ${python_interpreter_cmd} -m delius.clusters_evaluation
       --batch ${image_features.extraction.batch_size}
       --input_embeddings_file ${image_features.embeddings_file}
       --input_dec_file ${clustering.dec_path}
-      --output_tsne_pic_file ${clustering.tsne_pic_file}
       --input_image_dir ${images.uncompressed_image_dir}
-      --output_clustered_samples_file ${clustering.samples_pic_file}
       --n_samples_per_cluster ${clustering.n_samples_per_cluster}
       --embeddings_sample_fraction ${clustering.embeddings_sample_franction}
       --seed ${seed}
+      --env_file_path ${env_file_path}
+      --mlflow_parent_run_id_env_var_name ${env_var_name.mlflow.runs.dec_fitting}
     deps:
-    - delius/clusters_visualization.py
+    - delius/clusters_evaluation.py
     - ${clustering.dec_path}
     - ${image_features.embeddings_file}
-    outs:
-    - ${clustering.tsne_pic_file}
-    - ${clustering.samples_pic_file}
