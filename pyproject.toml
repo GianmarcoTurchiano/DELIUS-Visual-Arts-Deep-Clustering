@@ -11,7 +11,8 @@ dependencies = [
   "tqdm==4.67.1",
   "torch==2.6.0",
   "torchaudio==2.6.0",
-  "torchvision==0.21.0"
+  "torchvision==0.21.0",
+  "umap-learn==0.5.7"
 ]
 description = "Deep clustering for the visual arts."
 authors = [

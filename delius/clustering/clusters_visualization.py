@@ -4,25 +4,43 @@ from PIL import ImageDraw, ImageFont, Image
 from tqdm.autonotebook import tqdm
 import numpy as np
 from sklearn.manifold import TSNE
+import umap
 import matplotlib.pyplot as plt
 
 
-def plot_2D_clusters(
+def _plot_2D_clusters(
+    embeddings: np.ndarray,
+    cluster_assignments: np.ndarray,
+):
+    fig, ax = plt.subplots(figsize=(10, 8))
+    ax.scatter(embeddings[:, 0], embeddings[:, 1], c=cluster_assignments, cmap='tab10', alpha=0.6)
+    
+    return fig
+
+def plot_2D_clusters_tsne(
     embeddings: np.ndarray,
     cluster_assignments: np.ndarray,
     seed=42
 ):
     tqdm.write('Applying TSNE...')
-
-    tsne = TSNE(n_components=2, random_state=seed)
-    tsne_embedding = tsne.fit_transform(embeddings)
-
-    # Create figure and plot
-    fig, ax = plt.subplots(figsize=(10, 8))
-    ax.scatter(tsne_embedding[:, 0], tsne_embedding[:, 1], c=cluster_assignments, cmap='tab10', alpha=0.6)
-    ax.set_title("t-SNE Visualization of Clusters")
-
+    tsne_embeddings = TSNE(n_components=2, random_state=seed).fit_transform(embeddings)
     tqdm.write("Done.")
+
+    fig = _plot_2D_clusters(tsne_embeddings, cluster_assignments)
+
+    return fig
+
+
+def plot_2D_clusters_umap(
+    embeddings: np.ndarray,
+    cluster_assignments: np.ndarray,
+    seed=42
+):
+    tqdm.write('Applying UMAP...')
+    tsne_embeddings = umap.UMAP(n_components=2, random_state=seed).fit_transform(embeddings)
+    tqdm.write("Done.")
+
+    fig = _plot_2D_clusters(tsne_embeddings, cluster_assignments)
 
     return fig
 

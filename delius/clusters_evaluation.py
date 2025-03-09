@@ -1,11 +1,14 @@
 import argparse
 from tqdm.autonotebook import tqdm
 import os
+import random
 
+import numpy as np
+import torch
 from dotenv import load_dotenv
 import mlflow
 import matplotlib.pyplot as plt
-from sklearn.metrics import silhouette_score, calinski_harabasz_score
+from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 
 from delius.clustering.modules.features_dataset import load_features_dataset
 from delius.clustering.modules.deep_embedded_clustering import (
@@ -14,7 +17,8 @@ from delius.clustering.modules.deep_embedded_clustering import (
 )
 from delius.clustering.clusters_visualization import (
     sample_clustered_embeddings,
-    plot_2D_clusters,
+    plot_2D_clusters_tsne,
+    plot_2D_clusters_umap,
     sample_n_files_per_cluster,
     composite_clustered_pics
 )
@@ -34,6 +38,13 @@ if __name__ == '__main__':
     parser.add_argument('--mlflow_parent_run_id_env_var_name', type=str)
 
     args = parser.parse_args()
+
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    torch.cuda.manual_seed_all(args.seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
     tqdm.write(f"Loading features from '{args.input_embeddings_file}'...")
     dataset = load_features_dataset(args.input_embeddings_file)
@@ -76,7 +87,7 @@ if __name__ == '__main__':
             args.seed
         )
 
-        fig = plot_2D_clusters(
+        fig_tsne = plot_2D_clusters_tsne(
             sampled_embeddings,
             sampled_assignments,
             args.seed
@@ -84,9 +95,22 @@ if __name__ == '__main__':
 
         tsne_pic_file_name = "tsne.png"
 
-        tqdm.write(f"Logging clustering scatter plot as '{tsne_pic_file_name}'...")
-        mlflow.log_figure(fig, tsne_pic_file_name)
-        plt.close(fig)
+        tqdm.write(f"Logging t-SNE clustering scatter plot as '{tsne_pic_file_name}'...")
+        mlflow.log_figure(fig_tsne, tsne_pic_file_name)
+        plt.close(fig_tsne)
+        tqdm.write("Done.")
+
+        fig_umap = plot_2D_clusters_umap(
+            sampled_embeddings,
+            sampled_assignments,
+            args.seed
+        )
+
+        umap_pic_file_name = "umap.png"
+
+        tqdm.write(f"Logging UMAP clustering scatter plot as '{umap_pic_file_name}'...")
+        mlflow.log_figure(fig_umap, umap_pic_file_name)
+        plt.close(fig_umap)
         tqdm.write("Done.")
 
         cluster_images = sample_n_files_per_cluster(
@@ -108,6 +132,10 @@ if __name__ == '__main__':
         tqdm.write(f'Calinski-Harabasz score: {ch_score}')
         mlflow.log_metric('Calinski-Harabasz score', ch_score)
 
+        db_score = davies_bouldin_score(embeddings, assignments)
+        tqdm.write(f'Davies-Bouldin score: {db_score}')
+        mlflow.log_metric('Davies-Bouldin score', db_score)
+
         sil_score = silhouette_score(embeddings, assignments)
         tqdm.write(f'Silhouette score: {sil_score}')
-        mlflow.log_metric('silhouette score', sil_score)
+        mlflow.log_metric('Silhouette score', sil_score)
