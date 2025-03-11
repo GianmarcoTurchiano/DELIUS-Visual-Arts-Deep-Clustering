@@ -1,5 +1,4 @@
 import torch.nn as nn
-import torch
 
 
 class FeaturesEncoder(nn.Module):
@@ -41,11 +40,7 @@ def infer_encoder_dimensions(state_dict):
     return input_dim, hidden_dims
 
 
-def load_features_encoder(
-    file_path: str,
-):
-    weights = torch.load(file_path, weights_only=True)
-
+def load_features_encoder(weights):
     input_dims, hidden_dims = infer_encoder_dimensions(weights)
 
     model = FeaturesEncoder(

@@ -7,6 +7,7 @@ stages:
       --image_width ${images.image_width}
       --image_height ${images.image_height}
       --batch_size ${image_features.extraction.batch_size}
+      --seed ${seed}
     deps:
     - delius/features_extraction.py
     - ${images.compressed_image_dir}
@@ -19,20 +20,18 @@ stages:
       --batch ${hyperparameters.pretraining.batch_size}
       --encoder_hidden_dimensions ${encoder.hidden_dimensions}
       --input_embeddings_file ${image_features.embeddings_file}
-      --output_encoder_file ${encoder.pretrained_path}
+      --output_encoder_mlflow_run_id_path ${encoder.mlflow_run_id_path}
       --seed ${seed}
-      --env_file_path ${env_file_path}
-      --mlflow_run_id_env_var_name ${env_var_name.mlflow.runs.encoder_pretraining}
     deps:
     - delius/encoder_pretraining.py
     - ${image_features.embeddings_file}
     outs:
-    - ${encoder.pretrained_path}
+    - ${encoder.mlflow_run_id_path}
   clusters_initialization:
     cmd: ${python_interpreter_cmd} -m delius.clusters_initialization
       --batch ${image_features.extraction.batch_size}
       --input_embeddings_file ${image_features.embeddings_file}
-      --input_pretrained_encoder_file ${encoder.pretrained_path}
+      --input_encoder_mlflow_run_id_path ${encoder.mlflow_run_id_path}
       --output_centroids_file ${clustering.centroids_path}
       --output_assignments_file ${clustering.assignments_path}
       --n_clusters ${hyperparameters.clustering.n_clusters}
@@ -40,7 +39,7 @@ stages:
     deps:
     - delius/clusters_initialization.py
     - ${image_features.embeddings_file}
-    - ${encoder.pretrained_path}
+    - ${encoder.mlflow_run_id_path}
     outs:
     - ${clustering.centroids_path}
     - ${clustering.assignments_path}
@@ -48,38 +47,33 @@ stages:
     cmd: ${python_interpreter_cmd} -m delius.dec_fitting
       --batch ${hyperparameters.clustering.batch_size}
       --input_embeddings_file ${image_features.embeddings_file}
-      --input_pretrained_encoder_file ${encoder.pretrained_path}
+      --input_encoder_mlflow_run_id_path ${encoder.mlflow_run_id_path}
       --input_centroids_file ${clustering.centroids_path}
       --input_assignments_file ${clustering.assignments_path}
       --learning_rate ${hyperparameters.clustering.learning_rate}
       --steps ${hyperparameters.clustering.steps}
       --update_interval ${hyperparameters.clustering.update_interval}
       --delta_tol ${hyperparameters.clustering.delta_tol}
-      --output_dec_file ${clustering.dec_path}
+      --output_dec_mlflow_run_id_file ${clustering.dec_mlflow_run_id_path}
       --seed ${seed}
-      --env_file_path ${env_file_path}
-      --mlflow_run_id_env_var_name ${env_var_name.mlflow.runs.dec_fitting}
-      --mlflow_parent_run_id_env_var_name ${env_var_name.mlflow.runs.encoder_pretraining}
     deps:
     - delius/dec_fitting.py
     - ${image_features.embeddings_file}
-    - ${encoder.pretrained_path}
+    - ${encoder.mlflow_run_id_path}
     - ${clustering.centroids_path}
     - ${clustering.assignments_path}
     outs:
-    - ${clustering.dec_path}
+    - ${clustering.dec_mlflow_run_id_path}
   clusters_evaluation:
     cmd: ${python_interpreter_cmd} -m delius.clusters_evaluation
       --batch ${image_features.extraction.batch_size}
       --input_embeddings_file ${image_features.embeddings_file}
-      --input_dec_file ${clustering.dec_path}
+      --input_dec_mlflow_run_id_file ${clustering.dec_mlflow_run_id_path}
       --input_image_dir ${images.uncompressed_image_dir}
       --n_samples_per_cluster ${clustering.n_samples_per_cluster}
       --embeddings_sample_fraction ${clustering.embeddings_sample_franction}
       --seed ${seed}
-      --env_file_path ${env_file_path}
-      --mlflow_parent_run_id_env_var_name ${env_var_name.mlflow.runs.dec_fitting}
     deps:
     - delius/clusters_evaluation.py
-    - ${clustering.dec_path}
+    - ${clustering.dec_mlflow_run_id_path}
     - ${image_features.embeddings_file}

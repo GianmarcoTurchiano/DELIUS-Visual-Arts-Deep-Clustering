@@ -1,5 +1,6 @@
 from tqdm.autonotebook import tqdm
 from typing import Callable
+import os
 
 import random
 import numpy as np
@@ -34,6 +35,8 @@ def fit_dec(
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+    os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+    torch.use_deterministic_algorithms(True, warn_only=True)
 
     train_loader = DataLoader(
         dataset,
@@ -72,7 +75,7 @@ def fit_dec(
     step = 0
     loss_total = 0
 
-    pbar = tqdm(total=steps)
+    pbar = tqdm(total=steps, desc='Steps')
 
     converged = False
 

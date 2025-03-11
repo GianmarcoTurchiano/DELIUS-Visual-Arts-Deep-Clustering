@@ -3,8 +3,10 @@ from tqdm.autonotebook import tqdm
 import os
 
 import torch
+from dotenv import load_dotenv
+import mlflow
 
-from delius.clustering.modules.features_encoder import load_features_encoder
+from delius.clustering.modules.features_encoder import FeaturesEncoder
 from delius.clustering.modules.features_dataset import load_features_dataset
 from delius.clustering.clusters_initialization import initialize_clusters
 
@@ -13,7 +15,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--input_embeddings_file', type=str)
-    parser.add_argument('--input_pretrained_encoder_file', type=str)
+    parser.add_argument('--input_encoder_mlflow_run_id_path', type=str)
     parser.add_argument('--output_centroids_file', type=str)
     parser.add_argument('--output_assignments_file', type=str)
     parser.add_argument('--batch', type=int)
@@ -22,16 +24,25 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    tqdm.write(f"Loading environment variables...")
+    load_dotenv()
+    tqdm.write(f"Done.")
+
     tqdm.write(f"Loading features from '{args.input_embeddings_file}'...")
 
     dataset = load_features_dataset(args.input_embeddings_file)
 
     tqdm.write(f"Done.")
 
-    tqdm.write(f"Loading encoder from '{args.input_pretrained_encoder_file}'...")
+    with open(args.input_encoder_mlflow_run_id_path, 'r') as file:
+        parent_run_id = file.read()
 
-    model = load_features_encoder(args.input_pretrained_encoder_file)
+    model_uri = f'runs:/{parent_run_id}/{FeaturesEncoder.__name__}'
 
+    tqdm.write(f"Loading encoder from '{model_uri}'...")
+    model = mlflow.pytorch.load_model(model_uri)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
     tqdm.write(f"Done.")
 
     centroids, assignments = initialize_clusters(

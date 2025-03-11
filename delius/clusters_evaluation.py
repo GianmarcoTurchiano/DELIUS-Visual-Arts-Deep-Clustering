@@ -1,6 +1,5 @@
 import argparse
 from tqdm.autonotebook import tqdm
-import os
 import random
 
 import numpy as np
@@ -12,7 +11,7 @@ from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bo
 
 from delius.clustering.modules.features_dataset import load_features_dataset
 from delius.clustering.modules.deep_embedded_clustering import (
-    load_dec,
+    DEC,
     compute_embeddings_and_assignments
 )
 from delius.clustering.clusters_visualization import (
@@ -27,15 +26,13 @@ from delius.clustering.clusters_visualization import (
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--input_dec_file', type=str)
+    parser.add_argument('--input_dec_mlflow_run_id_file', type=str)
     parser.add_argument('--input_embeddings_file', type=str)
     parser.add_argument('--batch', type=int)
     parser.add_argument('--input_image_dir', type=str)
     parser.add_argument('--n_samples_per_cluster', type=int)
     parser.add_argument('--embeddings_sample_fraction', type=float)
     parser.add_argument('--seed', type=int)
-    parser.add_argument('--env_file_path', type=str)
-    parser.add_argument('--mlflow_parent_run_id_env_var_name', type=str)
 
     args = parser.parse_args()
 
@@ -46,19 +43,24 @@ if __name__ == '__main__':
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
+    tqdm.write(f"Loading environment variables...")
+    load_dotenv()
+    tqdm.write(f"Done.")
+
     tqdm.write(f"Loading features from '{args.input_embeddings_file}'...")
     dataset = load_features_dataset(args.input_embeddings_file)
     tqdm.write(f"Done.")
 
-    tqdm.write(f"Loading DEC from '{args.input_dec_file}'...")
-    model = load_dec(args.input_dec_file)
-    tqdm.write(f"Done.")
+    with open(args.input_dec_mlflow_run_id_file, 'r') as file:
+        parent_run_id = file.read()
 
-    tqdm.write(f"Loading environment variables from '{args.env_file_path}'...")
-    load_dotenv(args.env_file_path)
-    tqdm.write(f"Done.")
+    model_uri = f'runs:/{parent_run_id}/{DEC.__name__}'
 
-    parent_run_id = os.environ[args.mlflow_parent_run_id_env_var_name]
+    tqdm.write(f"Loading DEC from '{model_uri}'...")
+    model = mlflow.pytorch.load_model(model_uri)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
+    tqdm.write(f"Done.")
 
     tqdm.write(f"Creating a new MLFlow child run (parent run id: {parent_run_id})...")
 

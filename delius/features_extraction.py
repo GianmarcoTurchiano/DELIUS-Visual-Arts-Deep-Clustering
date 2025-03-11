@@ -18,6 +18,7 @@ if __name__ == '__main__':
     parser.add_argument('--image_width', type=int)
     parser.add_argument('--image_height', type=int)
     parser.add_argument('--batch_size', type=int)
+    parser.add_argument('--seed', type=int)
 
     args = parser.parse_args()
 

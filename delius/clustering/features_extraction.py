@@ -1,7 +1,10 @@
 from pathlib import Path
 from itertools import chain
 from PIL import Image
+import random
+import os
 
+import numpy as np
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
@@ -52,8 +55,18 @@ def extract_features(
         image_directory: str,
         image_width=224,
         image_height=224,
-        batch_size=256
+        batch_size=256,
+        seed=42
 ):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+    torch.use_deterministic_algorithms(True, warn_only=True)
+
     tqdm.write(f"Reading '{image_directory}'...")
 
     dataset = PicsDataset(

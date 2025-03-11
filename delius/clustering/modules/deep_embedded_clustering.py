@@ -65,9 +65,7 @@ def infer_dec_dimensions(state_dict):
     return input_dim, encoder_dims, clustering_shape
 
 
-def load_dec(input_dec_file):
-    weights = torch.load(input_dec_file, weights_only=True)
-
+def load_dec(weights):
     input_dims, encoder_hidden_dims, [n_clusters, embeddings_dims] = infer_dec_dimensions(weights)
 
     encoder = FeaturesEncoder(

@@ -16,7 +16,7 @@ image_features:
 
 encoder:
   hidden_dimensions: 500 500 2000 10
-  pretrained_path: ./models/pretrained/encoder.pth
+  mlflow_run_id_path: ./models/mlflow_run_ids/encoder_training_mlflow_run_id.txt
 
 hyperparameters:
   pretraining:
@@ -34,13 +34,6 @@ hyperparameters:
 clustering:
   centroids_path: ./models/kmeans/centroids.pth
   assignments_path: ./models/kmeans/assignments.pth
-  dec_path: ./models/dec/dec.pth
+  dec_mlflow_run_id_path: ./models/mlflow_run_ids/dec_training_mlflow_run_id.txt
   n_samples_per_cluster: 5
   embeddings_sample_franction: 0.1
-
-env_file_path: '.env'
-env_var_name:
-  mlflow:
-    runs:
-      encoder_pretraining: ENCODER_PRETRAINING_MLFLOW_RUN_ID
-      dec_fitting: DEC_FITTING_MLFLOW_RUN_ID
