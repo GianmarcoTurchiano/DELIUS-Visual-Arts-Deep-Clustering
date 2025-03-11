@@ -4,7 +4,7 @@ stages:
     cmd: python -m delius.features_extraction --input_compressed_image_dir ./data/raw/images.tar.gz
       --output_uncompressed_image_dir ./data/interim/images/ --output_embedding_file
       ./data/processed/embeddings.pth --image_width 224 --image_height 224 --batch_size
-      256
+      256 --seed 42
     deps:
     - path: ./data/raw/images.tar.gz
       hash: md5
@@ -12,58 +12,58 @@ stages:
       size: 2173727123
     - path: delius/features_extraction.py
       hash: md5
-      md5: 53b8be7ab5c0c817b2414507d030ed71
-      size: 1940
+      md5: b380b6b349a75f3aec267f5dd0f101a2
+      size: 1984
     outs:
     - path: ./data/processed/embeddings.pth
       hash: md5
-      md5: 5e4878518c4052d3cc2b45548a83ddec
+      md5: e63dfda5743b6291a7dd74e1cef7ccea
       size: 493158699
   encoder_pretraining:
     cmd: python -m delius.encoder_pretraining --learning_rate 0.001 --epochs 200 --batch
       256 --encoder_hidden_dimensions 500 500 2000 10 --input_embeddings_file ./data/processed/embeddings.pth
-      --output_encoder_file ./models/pretrained/encoder.pth --seed 42 --env_file_path
-      .env --mlflow_run_id_env_var_name ENCODER_PRETRAINING_MLFLOW_RUN_ID
+      --output_encoder_mlflow_run_id_path ./models/mlflow_run_ids/encoder_training_mlflow_run_id.txt
+      --seed 42
     deps:
     - path: ./data/processed/embeddings.pth
       hash: md5
-      md5: 5e4878518c4052d3cc2b45548a83ddec
+      md5: e63dfda5743b6291a7dd74e1cef7ccea
       size: 493158699
     - path: delius/encoder_pretraining.py
       hash: md5
-      md5: 5bf00277616ed78ebdb7eba89fbc7e17
-      size: 2143
+      md5: 3012214552d812ca31fa7072b5932090
+      size: 2427
     outs:
-    - path: ./models/pretrained/encoder.pth
+    - path: ./models/mlflow_run_ids/encoder_training_mlflow_run_id.txt
       hash: md5
-      md5: 09a1f232856ac4e8563f9752b55becd9
-      size: 7143040
+      md5: f69df84cab27e98e460ec50f0b4152f5
+      size: 32
   clusters_initialization:
     cmd: python -m delius.clusters_initialization --batch 256 --input_embeddings_file
-      ./data/processed/embeddings.pth --input_pretrained_encoder_file ./models/pretrained/encoder.pth
+      ./data/processed/embeddings.pth --input_encoder_mlflow_run_id_path ./models/mlflow_run_ids/encoder_training_mlflow_run_id.txt
       --output_centroids_file ./models/kmeans/centroids.pth --output_assignments_file
       ./models/kmeans/assignments.pth --n_clusters 10 --seed 42
     deps:
     - path: ./data/processed/embeddings.pth
       hash: md5
-      md5: 5e4878518c4052d3cc2b45548a83ddec
+      md5: e63dfda5743b6291a7dd74e1cef7ccea
       size: 493158699
-    - path: ./models/pretrained/encoder.pth
+    - path: ./models/mlflow_run_ids/encoder_training_mlflow_run_id.txt
       hash: md5
-      md5: 09a1f232856ac4e8563f9752b55becd9
-      size: 7143040
+      md5: f69df84cab27e98e460ec50f0b4152f5
+      size: 32
     - path: delius/clusters_initialization.py
       hash: md5
-      md5: f065e73b7ab4d6e558f647baf97e5f89
-      size: 1995
+      md5: ae3f9c43517fe85135f1cdcbf224bc38
+      size: 2361
     outs:
     - path: ./models/kmeans/assignments.pth
       hash: md5
-      md5: 016c4a8a0d880d1bda51722ac9fb8008
+      md5: c67b15a4313799b37003832f7c22f364
       size: 932976
     - path: ./models/kmeans/centroids.pth
       hash: md5
-      md5: b90698683f249f0f73907271ec33b655
+      md5: 1e565b1c7d6fbd1d0232d0c3331ae251
       size: 1574
   deep_embedded_clustering:
     cmd: python -m delius.deep_embedded_clustering --batch 256 --encoder_hidden_dimensions
@@ -129,52 +129,52 @@ stages:
       size: 950400
   dec_fitting:
     cmd: python -m delius.dec_fitting --batch 256 --input_embeddings_file ./data/processed/embeddings.pth
-      --input_pretrained_encoder_file ./models/pretrained/encoder.pth --input_centroids_file
-      ./models/kmeans/centroids.pth --input_assignments_file ./models/kmeans/assignments.pth
-      --learning_rate 0.001 --steps 8000 --update_interval 140 --delta_tol 0.001 --output_dec_file
-      ./models/dec/dec.pth --seed 42 --env_file_path .env --mlflow_run_id_env_var_name
-      DEC_FITTING_MLFLOW_RUN_ID --mlflow_parent_run_id_env_var_name ENCODER_PRETRAINING_MLFLOW_RUN_ID
+      --input_encoder_mlflow_run_id_path ./models/mlflow_run_ids/encoder_training_mlflow_run_id.txt
+      --input_centroids_file ./models/kmeans/centroids.pth --input_assignments_file
+      ./models/kmeans/assignments.pth --learning_rate 0.001 --steps 8000 --update_interval
+      140 --delta_tol 0.001 --output_dec_mlflow_run_id_file ./models/mlflow_run_ids/dec_training_mlflow_run_id.txt
+      --seed 42
     deps:
     - path: ./data/processed/embeddings.pth
       hash: md5
-      md5: 5e4878518c4052d3cc2b45548a83ddec
+      md5: e63dfda5743b6291a7dd74e1cef7ccea
       size: 493158699
     - path: ./models/kmeans/assignments.pth
       hash: md5
-      md5: 016c4a8a0d880d1bda51722ac9fb8008
+      md5: c67b15a4313799b37003832f7c22f364
       size: 932976
     - path: ./models/kmeans/centroids.pth
       hash: md5
-      md5: b90698683f249f0f73907271ec33b655
+      md5: 1e565b1c7d6fbd1d0232d0c3331ae251
       size: 1574
-    - path: ./models/pretrained/encoder.pth
+    - path: ./models/mlflow_run_ids/encoder_training_mlflow_run_id.txt
       hash: md5
-      md5: 09a1f232856ac4e8563f9752b55becd9
-      size: 7143040
+      md5: f69df84cab27e98e460ec50f0b4152f5
+      size: 32
     - path: delius/dec_fitting.py
       hash: md5
-      md5: 84c9f127c77d323aa6d0b6600dbc2123
-      size: 3684
+      md5: 5b5b3967172c69fd836d1d9928d60130
+      size: 3730
     outs:
-    - path: ./models/dec/dec.pth
+    - path: ./models/mlflow_run_ids/dec_training_mlflow_run_id.txt
       hash: md5
-      md5: 202f8cce8eb2e62a0dd421d6bb23080f
-      size: 7143816
+      md5: d09b0dcf049fb6e11453a030822dd497
+      size: 32
   clusters_evaluation:
     cmd: python -m delius.clusters_evaluation --batch 256 --input_embeddings_file
-      ./data/processed/embeddings.pth --input_dec_file ./models/dec/dec.pth --input_image_dir
-      ./data/interim/images/ --n_samples_per_cluster 5 --embeddings_sample_fraction
-      0.1 --seed 42 --env_file_path .env --mlflow_parent_run_id_env_var_name DEC_FITTING_MLFLOW_RUN_ID
+      ./data/processed/embeddings.pth --input_dec_mlflow_run_id_file ./models/mlflow_run_ids/dec_training_mlflow_run_id.txt
+      --input_image_dir ./data/interim/images/ --n_samples_per_cluster 5 --embeddings_sample_fraction
+      0.1 --seed 42
     deps:
     - path: ./data/processed/embeddings.pth
       hash: md5
-      md5: 5e4878518c4052d3cc2b45548a83ddec
+      md5: e63dfda5743b6291a7dd74e1cef7ccea
       size: 493158699
-    - path: ./models/dec/dec.pth
+    - path: ./models/mlflow_run_ids/dec_training_mlflow_run_id.txt
       hash: md5
-      md5: 202f8cce8eb2e62a0dd421d6bb23080f
-      size: 7143816
+      md5: d09b0dcf049fb6e11453a030822dd497
+      size: 32
     - path: delius/clusters_evaluation.py
       hash: md5
-      md5: da98e704f90ffc2b661c211e35219e26
-      size: 4675
+      md5: 9ab36129e0957491321d795208e64197
+      size: 4687
