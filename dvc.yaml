@@ -89,3 +89,4 @@ stages:
     - delius/clusters_evaluation.py
     - ${clustering.dec_mlflow_run_id_path}
     - ${image_features.embeddings_file}
+    - ${ground_truth.labels_file}
