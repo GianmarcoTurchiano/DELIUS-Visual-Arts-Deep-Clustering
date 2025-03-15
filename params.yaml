@@ -2,6 +2,11 @@ seed: 42
 
 python_interpreter_cmd: python
 
+ground_truth:
+  triples_file: ./data/raw/triples.csv
+  labels_file: ./data/processed/labels.csv
+  selected_relations: hasGenre hasStyle createdBy
+
 images:
   compressed_image_dir: ./data/raw/images.tar.gz
   uncompressed_image_dir: ./data/interim/images/

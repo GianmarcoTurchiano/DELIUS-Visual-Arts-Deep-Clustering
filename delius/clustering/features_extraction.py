@@ -48,7 +48,7 @@ class PicsDataset(Dataset):
         image = Image.open(img_path).convert('RGB')
         image = self.transform(image)
         return str(img_path), image
-    
+
 
 def extract_features(
         extractor: nn.Module,

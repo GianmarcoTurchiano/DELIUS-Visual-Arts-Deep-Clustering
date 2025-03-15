@@ -1,4 +1,15 @@
 stages:
+  triples_filtering:
+    cmd: ${python_interpreter_cmd} -m delius.triples_filtering
+      --input_triples_file ${ground_truth.triples_file}
+      --selected_relations ${ground_truth.selected_relations}
+      --output_labels_file ${ground_truth.labels_file}
+    deps:
+    - delius/triples_filtering.py
+    - ${ground_truth.triples_file}
+    outs:
+    - ${ground_truth.labels_file}
+
   features_extraction:
     cmd: ${python_interpreter_cmd} -m delius.features_extraction
       --input_compressed_image_dir ${images.compressed_image_dir}
