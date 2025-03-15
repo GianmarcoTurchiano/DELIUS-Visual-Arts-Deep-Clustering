@@ -2,12 +2,22 @@ import argparse
 from tqdm.autonotebook import tqdm
 import random
 
+import pandas as pd
 import numpy as np
 import torch
 from dotenv import load_dotenv
 import mlflow
 import matplotlib.pyplot as plt
-from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
+from sklearn.metrics import (
+    silhouette_score,
+    calinski_harabasz_score,
+    davies_bouldin_score,
+    adjusted_rand_score,
+    normalized_mutual_info_score,
+    adjusted_mutual_info_score,
+    homogeneity_completeness_v_measure,
+    fowlkes_mallows_score
+)
 
 from delius.clustering.modules.features_dataset import load_features_dataset
 from delius.clustering.modules.deep_embedded_clustering import (
@@ -28,6 +38,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--input_dec_mlflow_run_id_file', type=str)
     parser.add_argument('--input_embeddings_file', type=str)
+    parser.add_argument('--input_labels_file', type=str)
     parser.add_argument('--batch', type=int)
     parser.add_argument('--input_image_dir', type=str)
     parser.add_argument('--n_samples_per_cluster', type=int)
@@ -49,6 +60,12 @@ if __name__ == '__main__':
 
     tqdm.write(f"Loading features from '{args.input_embeddings_file}'...")
     dataset = load_features_dataset(args.input_embeddings_file)
+    tqdm.write(f"Done.")
+
+    tqdm.write(f"Loading ground truths from '{args.input_labels_file}'...")
+    labels_df = pd.read_csv(args.input_labels_file)
+    labels_df = labels_df.set_index('subject')
+    labels_df = pd.DataFrame({col: pd.factorize(labels_df[col])[0] for col in labels_df.columns}, index=labels_df.index)
     tqdm.write(f"Done.")
 
     with open(args.input_dec_mlflow_run_id_file, 'r') as file:
@@ -141,3 +158,30 @@ if __name__ == '__main__':
         sil_score = silhouette_score(embeddings, assignments)
         tqdm.write(f'Silhouette score: {sil_score}')
         mlflow.log_metric('Silhouette score', sil_score)
+
+        tqdm.write(f"Retrieving ground truths...")
+        ground_truths = labels_df.loc[names].values
+        tqdm.write('Done')
+
+        for i, column_name in enumerate(labels_df.columns):
+            tqdm.write(f"Computing metrics for the {column_name} labels...")
+            true_labels = ground_truths[:, i]
+
+            ari = adjusted_rand_score(true_labels, assignments)
+            mlflow.log_metric(f'Adjusted Rand Index ({column_name})', ari)
+
+            nmi = normalized_mutual_info_score(true_labels, assignments)
+            mlflow.log_metric(f'Normalized Mutual Information ({column_name})', nmi)
+
+            ami = adjusted_mutual_info_score(true_labels, assignments)
+            mlflow.log_metric(f'Adjusted Mutual Information ({column_name})', ami)
+
+            homogeneity, completeness, v_measure = homogeneity_completeness_v_measure(true_labels, assignments)
+            mlflow.log_metric(f'Homogeneity ({column_name})', homogeneity)
+            mlflow.log_metric(f'Completeness ({column_name})', completeness)
+            mlflow.log_metric(f'V-Measure ({column_name})', v_measure)
+
+            fmi = fowlkes_mallows_score(true_labels, assignments)
+            mlflow.log_metric(f'Fowlkes-Mallows Index ({column_name})', fmi)
+
+            tqdm.write('Done')

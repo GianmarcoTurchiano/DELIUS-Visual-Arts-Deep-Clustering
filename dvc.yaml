@@ -80,6 +80,7 @@ stages:
       --batch ${image_features.extraction.batch_size}
       --input_embeddings_file ${image_features.embeddings_file}
       --input_dec_mlflow_run_id_file ${clustering.dec_mlflow_run_id_path}
+      --input_labels_file ${ground_truth.labels_file}
       --input_image_dir ${images.uncompressed_image_dir}
       --n_samples_per_cluster ${clustering.n_samples_per_cluster}
       --embeddings_sample_fraction ${clustering.embeddings_sample_franction}

@@ -5,7 +5,7 @@ python_interpreter_cmd: python
 ground_truth:
   triples_file: ./data/raw/triples.csv
   labels_file: ./data/processed/labels.csv
-  selected_relations: hasGenre hasStyle createdBy
+  selected_relations: hasGenre hasStyle
 
 images:
   compressed_image_dir: ./data/raw/images.tar.gz

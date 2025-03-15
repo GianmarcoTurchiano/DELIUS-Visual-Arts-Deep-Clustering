@@ -105,7 +105,7 @@ def compute_embeddings_and_assignments(
     names_all = []
 
     with torch.no_grad():
-        for _, names, features in  tqdm(loader, desc='Computing embeddings and cluster assignments'):
+        for _, names, features in tqdm(loader, desc='Computing embeddings and cluster assignments'):
             features = features.to(device)
             z, q = model(features)
             cluster_ids = torch.argmax(q, dim=1).cpu().numpy()
