@@ -8,8 +8,8 @@ stages:
     deps:
     - path: ./data/raw/images.tar.gz
       hash: md5
-      md5: a5a0f9454e3dd56c5d7579782c255d9f
-      size: 2173727123
+      md5: 041ace4fb89cc62fe9fd08546ae830b6
+      size: 1861479354
     - path: delius/features_extraction.py
       hash: md5
       md5: b380b6b349a75f3aec267f5dd0f101a2
@@ -163,21 +163,25 @@ stages:
   clusters_evaluation:
     cmd: python -m delius.clusters_evaluation --batch 256 --input_embeddings_file
       ./data/processed/embeddings.pth --input_dec_mlflow_run_id_file ./models/mlflow_run_ids/dec_training_mlflow_run_id.txt
-      --input_image_dir ./data/interim/images/ --n_samples_per_cluster 5 --embeddings_sample_fraction
-      0.1 --seed 42
+      --input_labels_file ./data/processed/labels.csv --input_image_dir ./data/interim/images/
+      --n_samples_per_cluster 5 --embeddings_sample_fraction 0.1 --seed 42
     deps:
     - path: ./data/processed/embeddings.pth
       hash: md5
-      md5: e63dfda5743b6291a7dd74e1cef7ccea
+      md5: bd53b102e652d7e633fc91f8b8a06520
       size: 493158699
+    - path: ./data/processed/labels.csv
+      hash: md5
+      md5: 9161c7bc450e1cc78fe74d11e9426409
+      size: 8533668
     - path: ./models/mlflow_run_ids/dec_training_mlflow_run_id.txt
       hash: md5
-      md5: d09b0dcf049fb6e11453a030822dd497
+      md5: dc1d251bdcdb91ecdc13c70a6d483e0c
       size: 32
     - path: delius/clusters_evaluation.py
       hash: md5
-      md5: 9ab36129e0957491321d795208e64197
-      size: 4687
+      md5: 34be21d59c31cf91eec81416b1a83d12
+      size: 9112
   triples_filtering:
     cmd: python -m delius.triples_filtering --input_triples_file ./data/raw/triples.csv
       --selected_relations hasGenre hasStyle --output_labels_file ./data/processed/labels.csv
