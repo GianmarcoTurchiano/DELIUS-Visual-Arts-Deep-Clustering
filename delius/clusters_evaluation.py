@@ -215,27 +215,27 @@ if __name__ == '__main__':
 
             ari = adjusted_rand_score(true_labels, assignments)
             tqdm.write(f'Adjusted Rand Index ({column_name}): {ari}')
-            mlflow.log_metric(f'Adjusted Rand Index ({column_name})', ari)
+            mlflow.log_metric(f'Adjusted Rand Index / {column_name}', ari)
 
             nmi = normalized_mutual_info_score(true_labels, assignments)
             tqdm.write(f'Normalized Mutual Information ({column_name}): {nmi}')
-            mlflow.log_metric(f'Normalized Mutual Information ({column_name})', nmi)
+            mlflow.log_metric(f'Normalized Mutual Information / {column_name}', nmi)
 
             ami = adjusted_mutual_info_score(true_labels, assignments)
             tqdm.write(f'Adjusted Mutual Information ({column_name}): {ami}')
-            mlflow.log_metric(f'Adjusted Mutual Information ({column_name})', ami)
+            mlflow.log_metric(f'Adjusted Mutual Information / {column_name}', ami)
 
             homogeneity, completeness, v_measure = homogeneity_completeness_v_measure(true_labels, assignments)
             tqdm.write(f'Homogeneity ({column_name}): {homogeneity}')
             tqdm.write(f'Completeness ({column_name}): {completeness}')
             tqdm.write(f'V-Measure ({column_name}): {v_measure}')
-            mlflow.log_metric(f'Homogeneity ({column_name})', homogeneity)
-            mlflow.log_metric(f'Completeness ({column_name})', completeness)
-            mlflow.log_metric(f'V-Measure ({column_name})', v_measure)
+            mlflow.log_metric(f'Homogeneity / {column_name}', homogeneity)
+            mlflow.log_metric(f'Completeness / {column_name}', completeness)
+            mlflow.log_metric(f'V-Measure / {column_name}', v_measure)
 
             fmi = fowlkes_mallows_score(true_labels, assignments)
             tqdm.write(f'Fowlkes-Mallows Index ({column_name}): {fmi}')
-            mlflow.log_metric(f'Fowlkes-Mallows Index ({column_name})', fmi)
+            mlflow.log_metric(f'Fowlkes-Mallows Index / {column_name}', fmi)
 
             tqdm.write('Done')
 
