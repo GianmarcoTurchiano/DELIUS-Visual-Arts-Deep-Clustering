@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     tqdm.write(f"Loading initial cluster assignments from '{args.input_assignments_file}'...")
     assignments = torch.load(args.input_assignments_file, weights_only=True)
-    tqdm.write(f"Done.")
+    tqdm.write(f"Done.") 
 
     with open(args.input_encoder_mlflow_run_id_path, 'r') as file:
         parent_run_id = file.read()
@@ -71,6 +71,10 @@ if __name__ == '__main__':
         mlflow.log_param('update interval', args.update_interval)
         mlflow.log_param('delta tolerance', args.delta_tol)
 
+        n_clusters, _ = centroids.shape
+
+        mlflow.log_param('clusters count', n_clusters)
+
         model = fit_dec(
             encoder,
             dataset,
@@ -81,10 +85,7 @@ if __name__ == '__main__':
             args.steps,
             args.update_interval,
             args.delta_tol,
-            args.seed,
-            lambda step, loss: mlflow.log_metric('delta label', loss, step),
-            lambda step, loss: mlflow.log_metric('KL loss', loss, step),
-            lambda n_clusters: mlflow.log_param('clusters count', n_clusters)
+            args.seed
         )
 
         model = model.to('cpu')
@@ -97,6 +98,8 @@ if __name__ == '__main__':
             tqdm.write(f"Created directory '{directory}'.")
 
         tqdm.write(f"Saving the MLFlow run id to '{args.output_dec_mlflow_run_id_file}'...")
+
         with open(args.output_dec_mlflow_run_id_file, 'w') as file:
             file.write(child_run.info.run_id)
+
         tqdm.write(f"Done.")

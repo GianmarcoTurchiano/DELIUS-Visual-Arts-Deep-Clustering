@@ -48,12 +48,8 @@ if __name__ == '__main__':
             args.batch,
             args.epochs,
             args.learning_rate,
-            args.seed,
-            lambda epoch, loss: mlflow.log_metric('MSE loss', loss, epoch)
+            args.seed
         )
-
-        _, _, example = dataset[0]
-        example = example.cpu().numpy()
 
         model = model.to('cpu')
         mlflow.pytorch.log_model(model, FeaturesEncoder.__name__)
@@ -65,6 +61,8 @@ if __name__ == '__main__':
             tqdm.write(f"Created directory '{directory}'.")
 
         tqdm.write(f"Saving the MLFlow run id to '{args.output_encoder_mlflow_run_id_path}'...")
+
         with open(args.output_encoder_mlflow_run_id_path, 'w') as file:
             file.write(run.info.run_id)
+
         tqdm.write(f"Done.")

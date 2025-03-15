@@ -1,6 +1,7 @@
 from tqdm.autonotebook import tqdm
-from typing import Callable
+import sys
 import os
+from functools import wraps
 
 import random
 import numpy as np
@@ -14,6 +15,50 @@ from delius.clustering.modules.features_encoder import FeaturesEncoder
 from delius.clustering.modules.features_dataset import FeaturesDataset
 
 
+def metrics_logger(train_step_name):
+    def decorator(step_training_fn):
+        @wraps(step_training_fn)
+        def wrapper(*args, **kwargs):
+            step, steps, avg_loss, delta_label, converged = step_training_fn(*args, **kwargs)
+            loss_name = 'KLDivloss'
+            delta_name = 'delta'
+
+            tqdm.write(f"{train_step_name} {step}/{steps}, {loss_name}: {avg_loss:.4f}")
+            tqdm.write(f"{train_step_name} {step}/{steps}, {delta_name}: {delta_label:.4f}")
+
+            mlflow = sys.modules.get("mlflow") 
+            if mlflow:  # Log only if mlflow was imported
+                mlflow.log_metric(loss_name, avg_loss, step=step)
+                mlflow.log_metric(delta_name, delta_label, step=step)
+            
+            if converged:
+                tqdm.write(f'Reached {delta_name} tolerance threshold. Stopping training.')
+
+            return converged
+                
+        return wrapper
+    return decorator
+
+
+@metrics_logger(train_step_name="Step")
+def _check_clustering_metrics(
+    y_pred_last: np.ndarray,
+    y_pred: np.ndarray,
+    loss_total: float,
+    delta_tol: float,
+    update_interval: int,
+    step: int,
+    steps: int
+):
+    delta = np.sum(y_pred != y_pred_last).astype(np.float32) / y_pred.shape[0]
+
+    avg_loss = loss_total / update_interval
+
+    converged = delta < delta_tol
+
+    return step, steps, avg_loss, delta, converged
+
+
 def fit_dec(
     encoder: FeaturesEncoder,
     dataset: FeaturesDataset,
@@ -25,9 +70,6 @@ def fit_dec(
     update_interval=140,
     delta_tol=0.001,
     seed=42,
-    log_delta_label_fn: Callable[[int, float], None] = None,
-    log_update_interval_loss_fn: Callable[[int, float], None] = None,
-    log_n_clusters_fn: Callable[[int], None] = None
 ):
     random.seed(seed)
     np.random.seed(seed)
@@ -51,9 +93,6 @@ def fit_dec(
     )
 
     n_clusters, bottleneck_dimensions = centroids.shape
-
-    if log_n_clusters_fn != None:
-        log_n_clusters_fn(n_clusters)
 
     model = DEC(
         encoder,
@@ -87,7 +126,7 @@ def fit_dec(
                 
                 model.eval()
                 with torch.no_grad():
-                    for _, _, val_embeddings in tqdm(val_loader, leave=False, desc='Computing delta'):
+                    for _, _, val_embeddings in tqdm(val_loader, leave=False, desc='Computing assignments'):
                         val_embeddings = val_embeddings.to(device)
                         _, q = model(val_embeddings)
                         q_all.append(q.detach().cpu())
@@ -98,27 +137,16 @@ def fit_dec(
                 if step > 0:
                     y_pred = torch.argmax(q_all, dim=1).numpy()
 
-                    delta_label = np.sum(y_pred != y_pred_last).astype(np.float32) / y_pred.shape[0]
-                    y_pred_last = y_pred.copy()
+                    converged = _check_clustering_metrics(
+                        y_pred_last, y_pred, loss_total,
+                        delta_tol, update_interval, step, steps
+                    )
 
-                    tqdm.write(f"Step {step}/{steps}, label change: {delta_label:.4f}")
-
-                    if log_delta_label_fn != None:
-                        log_delta_label_fn(step, delta_label)
-
-                    avg_loss = loss_total / update_interval
-                    tqdm.write(f"Step {step}/{steps}, KL Loss: {avg_loss:.4f}")
-
-                    if log_update_interval_loss_fn != None:
-                        log_update_interval_loss_fn(step, avg_loss)
-
-                    loss_total = 0
-
-                    if delta_label < delta_tol:
-                        tqdm.write(f'delta_label {delta_label} < delta_tol {delta_tol}')
-                        tqdm.write('Reached tolerance threshold. Stopping training.')
-                        converged = True
+                    if converged:
                         break
+
+                    y_pred_last = y_pred.copy()
+                    loss_total = 0
 
             model.train()
             train_embeddings = train_embeddings.to(device)
