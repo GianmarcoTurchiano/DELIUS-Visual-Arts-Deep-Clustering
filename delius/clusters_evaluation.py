@@ -8,7 +8,7 @@ import torch
 from dotenv import load_dotenv
 import mlflow
 import matplotlib.pyplot as plt
-from sklearn.metrics import (
+from sklearn.metrics.cluster import (
     silhouette_score,
     calinski_harabasz_score,
     davies_bouldin_score,
@@ -16,7 +16,9 @@ from sklearn.metrics import (
     normalized_mutual_info_score,
     adjusted_mutual_info_score,
     homogeneity_completeness_v_measure,
-    fowlkes_mallows_score
+    fowlkes_mallows_score,
+    pair_confusion_matrix,
+    contingency_matrix
 )
 
 from delius.clustering.modules.features_dataset import load_features_dataset
@@ -31,6 +33,50 @@ from delius.clustering.clusters_visualization import (
     sample_n_files_per_cluster,
     composite_clustered_pics
 )
+
+
+def plot_contingency_matrix(true_labels, predicted_clusters):
+    matrix = contingency_matrix(true_labels, predicted_clusters)
+
+    fig, ax = plt.subplots(figsize=(10, 7))
+    cax = ax.matshow(matrix, cmap="Blues")
+    fig.colorbar(cax)
+
+    # Add text annotations
+    for i in range(matrix.shape[0]):
+        for j in range(matrix.shape[1]):
+            ax.text(j, i, str(matrix[i, j]), va='center', ha='center', color="black")
+
+    ax.set_xlabel("Predicted Clusters")
+    ax.set_ylabel("True Labels")
+    ax.set_title("Contingency Matrix")
+    ax.set_xticks(np.arange(matrix.shape[1]))
+    ax.set_yticks(np.arange(matrix.shape[0]))
+
+    return fig
+
+
+def plot_pair_confusion_matrix(true_labels, predicted_clusters):
+    pcm = pair_confusion_matrix(true_labels, predicted_clusters)
+
+    fig, ax = plt.subplots(figsize=(6, 5))
+    cax = ax.matshow(pcm, cmap="Reds")
+    fig.colorbar(cax)
+
+    # Add text annotations
+    for i in range(pcm.shape[0]):
+        for j in range(pcm.shape[1]):
+            ax.text(j, i, str(pcm[i, j]), va='center', ha='center', color="black")
+
+    ax.set_xlabel("Predicted Pairwise Relation")
+    ax.set_ylabel("True Pairwise Relation")
+    ax.set_title("Pair Confusion Matrix")
+    ax.set_xticks([0, 1])
+    ax.set_xticklabels(["Different Cluster", "Same Cluster"])
+    ax.set_yticks([0, 1])
+    ax.set_yticklabels(["Different Class", "Same Class"])
+
+    return fig
 
 
 if __name__ == '__main__':
@@ -168,20 +214,45 @@ if __name__ == '__main__':
             true_labels = ground_truths[:, i]
 
             ari = adjusted_rand_score(true_labels, assignments)
+            tqdm.write(f'Adjusted Rand Index ({column_name}): {ari}')
             mlflow.log_metric(f'Adjusted Rand Index ({column_name})', ari)
 
             nmi = normalized_mutual_info_score(true_labels, assignments)
+            tqdm.write(f'Normalized Mutual Information ({column_name}): {nmi}')
             mlflow.log_metric(f'Normalized Mutual Information ({column_name})', nmi)
 
             ami = adjusted_mutual_info_score(true_labels, assignments)
+            tqdm.write(f'Adjusted Mutual Information ({column_name}): {ami}')
             mlflow.log_metric(f'Adjusted Mutual Information ({column_name})', ami)
 
             homogeneity, completeness, v_measure = homogeneity_completeness_v_measure(true_labels, assignments)
+            tqdm.write(f'Homogeneity ({column_name}): {homogeneity}')
+            tqdm.write(f'Completeness ({column_name}): {completeness}')
+            tqdm.write(f'V-Measure ({column_name}): {v_measure}')
             mlflow.log_metric(f'Homogeneity ({column_name})', homogeneity)
             mlflow.log_metric(f'Completeness ({column_name})', completeness)
             mlflow.log_metric(f'V-Measure ({column_name})', v_measure)
 
             fmi = fowlkes_mallows_score(true_labels, assignments)
+            tqdm.write(f'Fowlkes-Mallows Index ({column_name}): {fmi}')
             mlflow.log_metric(f'Fowlkes-Mallows Index ({column_name})', fmi)
 
             tqdm.write('Done')
+
+            artifact_path = f"contingency_matrix_{column_name}.png"
+
+            fig = plot_contingency_matrix(true_labels, assignments)
+
+            mlflow.log_figure(fig, artifact_path)
+            plt.close(fig)
+
+            tqdm.write(f"Logged contingency matrix as '{artifact_path}'...")
+            
+            artifact_path = f"pair_confusion_matrix_{column_name}.png"
+
+            fig = plot_pair_confusion_matrix(true_labels, assignments)
+
+            mlflow.log_figure(fig, artifact_path)
+            plt.close(fig)
+
+            tqdm.write(f"Logged pair-confusion matrix as '{artifact_path}'...")
