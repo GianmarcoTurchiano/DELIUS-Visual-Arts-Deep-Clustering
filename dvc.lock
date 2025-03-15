@@ -180,8 +180,8 @@ stages:
       size: 32
     - path: delius/clusters_evaluation.py
       hash: md5
-      md5: c663f34fe54c97b664278edd2dc4f1b6
-      size: 9112
+      md5: 962dba22ff1c46debf61686e9a57d62b
+      size: 9570
   triples_filtering:
     cmd: python -m delius.triples_filtering --input_triples_file ./data/raw/triples.csv
       --selected_relations hasGenre hasStyle --output_labels_file ./data/processed/labels.csv

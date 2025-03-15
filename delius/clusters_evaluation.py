@@ -35,46 +35,54 @@ from delius.clustering.clusters_visualization import (
 )
 
 
-def plot_contingency_matrix(true_labels, predicted_clusters):
+def plot_contingency_matrix(true_labels, predicted_clusters, column_name):
     matrix = contingency_matrix(true_labels, predicted_clusters)
+    matrix = matrix.T
 
-    fig, ax = plt.subplots(figsize=(10, 7))
-    cax = ax.matshow(matrix, cmap="Blues")
+    fig, ax = plt.subplots(figsize=(12, 6))
+    cax = ax.matshow(matrix, cmap="Blues", norm=plt.Normalize(vmin=0, vmax=np.max(matrix)))
     fig.colorbar(cax)
 
-    # Add text annotations
     for i in range(matrix.shape[0]):
         for j in range(matrix.shape[1]):
-            ax.text(j, i, str(matrix[i, j]), va='center', ha='center', color="black")
+            if matrix[i, j] > 0:
+                ax.text(j, i, str(matrix[i, j]), va='center', ha='center', fontsize=8, color="black")
 
-    ax.set_xlabel("Predicted Clusters")
-    ax.set_ylabel("True Labels")
-    ax.set_title("Contingency Matrix")
+    ax.set_xlabel("True Labels", fontsize=12)
+    ax.set_ylabel("Predicted Clusters", fontsize=12)
+    ax.set_title(f"Contingency Matrix ({column_name})", fontsize=14)
+
     ax.set_xticks(np.arange(matrix.shape[1]))
     ax.set_yticks(np.arange(matrix.shape[0]))
+    ax.yaxis.set_tick_params(rotation=0)
+    ax.xaxis.set_tick_params(rotation=90)
+
+    plt.subplots_adjust(left=0.15, right=0.95, top=0.85, bottom=0.25)
 
     return fig
 
 
-def plot_pair_confusion_matrix(true_labels, predicted_clusters):
+def plot_pair_confusion_matrix(true_labels, predicted_clusters, column_name):
     pcm = pair_confusion_matrix(true_labels, predicted_clusters)
 
-    fig, ax = plt.subplots(figsize=(6, 5))
+    fig, ax = plt.subplots(figsize=(7, 6))
     cax = ax.matshow(pcm, cmap="Reds")
     fig.colorbar(cax)
 
-    # Add text annotations
     for i in range(pcm.shape[0]):
         for j in range(pcm.shape[1]):
-            ax.text(j, i, str(pcm[i, j]), va='center', ha='center', color="black")
+            ax.text(j, i, format(pcm[i, j], ","), va='center', ha='center', fontsize=10, color="black")
 
-    ax.set_xlabel("Predicted Pairwise Relation")
-    ax.set_ylabel("True Pairwise Relation")
-    ax.set_title("Pair Confusion Matrix")
+    ax.set_xlabel("Predicted Pairwise Relation", fontsize=12)
+    ax.set_ylabel("True Pairwise Relation", fontsize=12)
+    ax.set_title(f"Pair Confusion Matrix ({column_name})", fontsize=14)
+
     ax.set_xticks([0, 1])
-    ax.set_xticklabels(["Different Cluster", "Same Cluster"])
+    ax.set_xticklabels(["Different Cluster", "Same Cluster"], fontsize=10)
     ax.set_yticks([0, 1])
-    ax.set_yticklabels(["Different Class", "Same Class"])
+    ax.set_yticklabels(["Different Class", "Same Class"], fontsize=10)
+
+    plt.tight_layout()
 
     return fig
 
@@ -241,7 +249,7 @@ if __name__ == '__main__':
 
             artifact_path = f"contingency_matrix_{column_name}.png"
 
-            fig = plot_contingency_matrix(true_labels, assignments)
+            fig = plot_contingency_matrix(true_labels, assignments, column_name)
 
             mlflow.log_figure(fig, artifact_path)
             plt.close(fig)
@@ -250,7 +258,7 @@ if __name__ == '__main__':
             
             artifact_path = f"pair_confusion_matrix_{column_name}.png"
 
-            fig = plot_pair_confusion_matrix(true_labels, assignments)
+            fig = plot_pair_confusion_matrix(true_labels, assignments, column_name)
 
             mlflow.log_figure(fig, artifact_path)
             plt.close(fig)
